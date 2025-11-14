@@ -1,0 +1,12 @@
+server:
+  port: 8083
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+mybatis:
+  # MyBatis xml 配置文件路径
+  mapper-locations: classpath:/mapper/**/*.xml

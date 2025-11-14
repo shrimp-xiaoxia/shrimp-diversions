@@ -1,0 +1,110 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.shrimp</groupId>
+        <artifactId>shrimp-user</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <groupId>com.shrimp.user.biz</groupId>
+    <artifactId>shrimp-user-biz</artifactId>
+    <name>shrimp-user-biz</name>
+    <description>用户服务业务模块</description>
+    <packaging>jar</packaging>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>com.shrimp.framework.common</groupId>
+            <artifactId>shrimp-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!-- Mybatis -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- MySQL 驱动 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!--Druid数据库连接池-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-3-starter</artifactId>
+        </dependency>
+        <!-- 接口日志-->
+        <dependency>
+            <groupId>com.shrimp.framework.biz.operationlog</groupId>
+            <artifactId>shrimp-spring-boot-starter-biz-operationlog</artifactId>
+        </dependency>
+        <!--登录用户上下文-->
+        <dependency>
+            <groupId>com.shrimp.framework.biz.context</groupId>
+            <artifactId>shrimp-spring-boot-starter-biz-context</artifactId>
+        </dependency>
+        <!--jackson的补充-->
+        <dependency>
+            <groupId>com.shrimp.framework.jackson</groupId>
+            <artifactId>shrimp-spring-boot-starter-jackson-prod</artifactId>
+        </dependency>
+        <!-- oss-api调用模块-->
+        <dependency>
+            <groupId>com.shrimp.oss</groupId>
+            <artifactId>shrimp-oss-api</artifactId>
+        </dependency>
+        <!--redis-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!-- redis连接池-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.shrimp.user.api</groupId>
+            <artifactId>shrimp-user-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- 代码生成器 -->
+            <plugin>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,2 @@
+com.shrimp.framework.biz.context.config.ContextAutoConfiguration
+com.shrimp.framework.biz.context.config.FeignContextAutoConfiguration

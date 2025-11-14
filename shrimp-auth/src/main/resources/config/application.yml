@@ -1,0 +1,6 @@
+server:
+  port: 8081 # 项目启动的端口
+
+spring:
+  main:
+    allow-circular-references: true

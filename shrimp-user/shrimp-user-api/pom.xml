@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.shrimp</groupId>
+        <artifactId>shrimp-user</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <groupId>com.shrimp.user.api</groupId>
+    <artifactId>shrimp-user-api</artifactId>
+    <name>shrimp-user-api</name>
+    <packaging>jar</packaging>
+
+    <description>用户RPC调用模块</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.shrimp.framework.common</groupId>
+            <artifactId>shrimp-common</artifactId>
+        </dependency>
+
+        <!-- OpenFeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!--OpenFeign 通常和 loadbalancer 接口负载均衡组件搭配使用。-->
+        <!-- 负载均衡 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+    </dependencies>
+</project>

@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.shrimp</groupId>
+        <artifactId>shrimp-framework</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <groupId>com.shrimp.framework.biz.context</groupId>
+    <artifactId>shrimp-spring-boot-starter-biz-context</artifactId>
+    <packaging>jar</packaging>
+
+    <name>shrimp-spring-boot-starter-biz-context</name>
+    <description>"该模块是应用上下文模块"</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.shrimp.framework.common</groupId>
+            <artifactId>shrimp-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+        </dependency>
+        <!--添加 feign 核心依赖-->
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>
