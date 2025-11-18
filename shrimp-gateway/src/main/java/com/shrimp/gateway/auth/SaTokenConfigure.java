@@ -30,6 +30,7 @@ public class SaTokenConfigure {
                     SaRouter.match("/**")
                             .notMatch("/auth/login")// 排除登录接口
                             .notMatch("/auth/verification/code/send") // 排除验证码发送接口
+                            .notMatch("/note/note/detail")
                             .check(r->StpUtil.checkLogin());
 
 //                    // 权限认证 -- 不同模块, 校验不同权限

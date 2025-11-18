@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: shrimp-distributed-id-generator-biz
+  profiles:
+    active: dev # 默认激活 dev 本地开发环境
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        namespace: shrimp
+        group: DEFAULT_GROUP
+        server-addr: http://192.168.88.128:8848

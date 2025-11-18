@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.shrimp</groupId>
+        <artifactId>shrimp-diversions</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>shrimp-kv</artifactId>
+    <packaging>pom</packaging>
+    <name>shrimp-kv</name>
+    <description>Key-Value 键值存储服务</description>
+
+    <modules>
+        <module>shrimp-kv-api</module>
+        <module>shrimp-kv-biz</module>
+    </modules>
+
+    <dependencies>
+    </dependencies>
+</project>

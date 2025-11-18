@@ -16,4 +16,6 @@ public interface UserDOMapper {
     int updateByPrimaryKey(UserDO record);
 
     UserDO selectByPhone(String phone);
+
+    UserDO selectById(Long id);
 }

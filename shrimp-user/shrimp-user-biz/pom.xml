@@ -91,6 +91,17 @@
             <groupId>com.shrimp.user.api</groupId>
             <artifactId>shrimp-user-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.shrimp.distrituted.id.generator</groupId>
+            <artifactId>shrimp-distributed-id-generator-api</artifactId>
+        </dependency>
+
+        <!-- Caffeine 本地缓存 -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

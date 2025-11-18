@@ -3,6 +3,12 @@
   <component name="Encoding" native2AsciiForPropertiesFiles="true" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/shrimp-auth/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-auth/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-distributed-id-generator/shrimp-distributed-id-generator-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-distributed-id-generator/shrimp-distributed-id-generator-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-distributed-id-generator/shrimp-distributed-id-generator-biz/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-distributed-id-generator/shrimp-distributed-id-generator-biz/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-distributed-id-generator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-distributed-id-generator/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-framework/shrimp-common/shrimp-spring-boot-starter-biz-operationlog/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-framework/shrimp-common/shrimp-spring-boot-starter-biz-operationlog/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-framework/shrimp-common/src/main/java" charset="UTF-8" />
@@ -17,6 +23,18 @@
     <file url="file://$PROJECT_DIR$/shrimp-framework/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-gateway/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-kv/shrimp-kv-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-kv/shrimp-kv-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-kv/shrimp-kv-biz/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-kv/shrimp-kv-biz/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-kv/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-kv/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-note/shrimp-note-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-note/shrimp-note-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-note/shrimp-note-biz/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-note/shrimp-note-biz/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-note/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/shrimp-note/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-oss/shrimp-oss-api/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-oss/shrimp-oss-api/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/shrimp-oss/shrimp-oss-biz/src/main/java" charset="UTF-8" />

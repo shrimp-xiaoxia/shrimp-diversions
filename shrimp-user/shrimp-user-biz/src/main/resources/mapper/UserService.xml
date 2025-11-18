@@ -33,12 +33,12 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.shrimp.user.biz.domain.dataobject.UserDO" useGeneratedKeys = "true" keyProperty="id">
-    insert into t_user (xiaohashu_id, `password`,
+    insert into t_user (id,xiaohashu_id, `password`,
       nickname, avatar, birthday, 
       background_img, phone, sex, 
       `status`, introduction, create_time, 
       update_time, is_deleted)
-    values (#{xiaohashuId,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+    values (#{id,jdbcType=TINYINT},#{xiaohashuId,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
       #{nickname,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{birthday,jdbcType=DATE}, 
       #{backgroundImg,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{sex,jdbcType=TINYINT}, 
       #{status,jdbcType=TINYINT}, #{introduction,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
@@ -202,5 +202,10 @@
         select id,phone,password
         from t_user
         where phone = #{phone}
+    </select>
+    <select id="selectById" parameterType="java.lang.Long" resultMap = "BaseResultMap">
+        select id,nickname,avatar
+        from t_user
+        where id = #{id,jdbcType=BIGINT}
     </select>
 </mapper>

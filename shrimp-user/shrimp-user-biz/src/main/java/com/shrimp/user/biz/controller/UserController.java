@@ -4,9 +4,11 @@ import com.shrimp.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.shrimp.framework.common.response.Response;
 import com.shrimp.user.biz.model.vo.UpdateUserInfoReqVO;
 import com.shrimp.user.biz.service.UserService;
+import com.shrimp.user.dto.req.FindUserByIdReqDTO;
 import com.shrimp.user.dto.req.FindUserByPhoneReqDTO;
 import com.shrimp.user.dto.req.RegisterUserReqDTO;
 import com.shrimp.user.dto.req.UpdateUserPasswordReqDTO;
+import com.shrimp.user.dto.resp.FindUserByIdRspDTO;
 import com.shrimp.user.dto.resp.FindUserByPhoneRspDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +43,19 @@ public class UserController {
 
     @PostMapping("/findByPhone")
     @ApiOperationLog(description = "通过手机号查询用户接口")
-    public Response<FindUserByPhoneRspDTO> findUserByPhone(@Validated @RequestBody FindUserByPhoneReqDTO findUserByPhoneReqDTO){
+    public Response<FindUserByPhoneRspDTO> findUserByPhone(@Validated @RequestBody FindUserByPhoneReqDTO findUserByPhoneReqDTO) {
         return userService.findUserByPhone(findUserByPhoneReqDTO);
     }
 
     @PostMapping("/password/update")
     @ApiOperationLog(description = "修改密码接口")
-    public Response<?> updatePassword(@Validated @RequestBody UpdateUserPasswordReqDTO updateUserPasswordReqDTO){
+    public Response<?> updatePassword(@Validated @RequestBody UpdateUserPasswordReqDTO updateUserPasswordReqDTO) {
         return userService.updatePassword(updateUserPasswordReqDTO);
+    }
+
+    @PostMapping("/findById")
+    @ApiOperationLog(description = "通过用户ID查找用户信息接口")
+    public Response<FindUserByIdRspDTO> findUserById(@Validated @RequestBody FindUserByIdReqDTO findUserByIdReqDTO) {
+        return userService.findUserById(findUserByIdReqDTO);
     }
 }
