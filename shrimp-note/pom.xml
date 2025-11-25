@@ -14,7 +14,6 @@
     <packaging>pom</packaging>
 
     <modules>
-
         <module>shrimp-note-api</module>
         <module>shrimp-note-biz</module>
     </modules>

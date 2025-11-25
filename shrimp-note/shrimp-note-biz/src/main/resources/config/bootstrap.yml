@@ -7,6 +7,6 @@ spring:
     nacos:
       discovery:
         enabled: true
-        server-addr: http://192.168.88.128:8848
+        server-addr: http://192.168.88.130:8848
         namespace: shrimp
         group: DEFAULT_GROUP

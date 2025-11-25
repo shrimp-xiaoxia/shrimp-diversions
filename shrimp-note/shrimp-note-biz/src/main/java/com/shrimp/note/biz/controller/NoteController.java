@@ -2,9 +2,7 @@ package com.shrimp.note.biz.controller;
 
 import com.shrimp.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.shrimp.framework.common.response.Response;
-import com.shrimp.note.biz.model.vo.req.FindNoteDetailReqVO;
-import com.shrimp.note.biz.model.vo.req.PublishNoteReqVO;
-import com.shrimp.note.biz.model.vo.req.UpdateNoteReqVO;
+import com.shrimp.note.biz.model.vo.req.*;
 import com.shrimp.note.biz.model.vo.rsp.FindNoteDetailRspVO;
 import com.shrimp.note.biz.service.NoteService;
 import jakarta.annotation.Resource;
@@ -38,5 +36,23 @@ public class NoteController {
     @ApiOperationLog(description = "更新笔记接口")
     public Response<?> updateNote(@Validated @RequestBody UpdateNoteReqVO updateNoteReqVO) {
         return noteService.updateNote(updateNoteReqVO);
+    }
+
+    @PostMapping("/delete")
+    @ApiOperationLog(description = "删除笔记接口")
+    public Response<?> deleteNote(@Validated @RequestBody DeleteNoteReqVO deleteNoteReqVO) {
+        return noteService.deleteNote(deleteNoteReqVO);
+    }
+
+    @PostMapping("/visible/onlyme")
+    @ApiOperationLog(description = "笔记仅对自己可见接口")
+    public Response<?> visibleOnlyMe(@Validated @RequestBody UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO){
+        return noteService.updateNoteVisibleOnlyMe(updateNoteVisibleOnlyMeReqVO);
+    }
+
+    @PostMapping("/top")
+    @ApiOperationLog(description = "更新笔记置顶情况接口")
+    public Response<?> updateNoteIsTop(@Validated @RequestBody UpdateNoteIsTopReqVO updateNoteIsTopReqVO){
+        return noteService.updateNoteIsTop(updateNoteIsTopReqVO);
     }
 }

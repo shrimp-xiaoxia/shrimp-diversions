@@ -23,6 +23,7 @@
         <module>shrimp-kv</module>
         <module>shrimp-distributed-id-generator</module>
         <module>shrimp-note</module>
+        <module>shrimp-user-relation</module>
     </modules>
 
     <properties>
@@ -63,6 +64,7 @@
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
         <feign-form.version>3.8.0</feign-form.version>
         <caffeine.version>3.1.8</caffeine.version>
+        <rocketmq.version>2.2.3</rocketmq.version>
     </properties>
 
     <!-- 统一依赖管理 -->
@@ -273,6 +275,20 @@
                 <artifactId>shrimp-distributed-id-generator-api</artifactId>
                 <version>${revision}</version>
             </dependency>
+
+            <!-- Caffeine 本地缓存 -->
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
+
+            <!-- Rocket MQ -->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -328,13 +344,6 @@
                             <groupId>mysql</groupId>
                             <artifactId>mysql-connector-java</artifactId>
                             <version>${mysql-connector-java.version}</version>
-                        </dependency>
-
-                        <!-- Caffeine 本地缓存 -->
-                        <dependency>
-                            <groupId>com.github.ben-manes.caffeine</groupId>
-                            <artifactId>caffeine</artifactId>
-                            <version>${caffeine.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>

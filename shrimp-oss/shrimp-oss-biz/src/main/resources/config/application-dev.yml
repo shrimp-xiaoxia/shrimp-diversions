@@ -1,6 +1,6 @@
 storage:
   minio:
-    endPoint: http:/192.168.88.128:9000
+    endPoint: http:/192.168.88.130:9000
     accessKey: shrimpSmart
     secretKey: shrimpSmart
   aliyun-oss:

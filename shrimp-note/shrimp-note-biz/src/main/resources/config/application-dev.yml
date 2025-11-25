@@ -2,7 +2,7 @@ spring:
   datasource:
     #  数据库驱动类
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.88.128/shrimp_smart?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://192.168.88.130/shrimp_smart?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: Fp0N0KNIX7ShVdJ4hgUz7XTLrsDJo7m8ZfmOF27zyXymznBdahMp699NhU0pMXe44zDw+jq0OqTL9VGpX4lqWA==
     type: com.alibaba.druid.pool.DruidDataSource
@@ -41,7 +41,7 @@ spring:
   data:
     redis:
       database: 0 # Redis 数据库索引（默认为 0）
-      host: 192.168.88.128 # Redis 服务器地址
+      host: 192.168.88.130 # Redis 服务器地址
       port: 6379 # Redis 服务器连接端口
       password: 123321 # Redis 服务器连接密码（默认为空）
       timeout: 5s # 读超时时间
@@ -54,4 +54,16 @@ spring:
           max-idle: 10 # 连接池中的最大空闲连接
 logging:
   level:
-    com.shrimp.common.user.domain.mapper: debug
+    com.shrimp.note.biz.domain.mapper: debug
+
+rocketmq:
+  name-server: 192.168.88.130:9876 # name server 地址
+  producer:
+    group: shrimp_group
+    send-message-timeout: 3000 # 消息发送超时时间，默认 3s
+    retry-times-when-send-failed: 3 # 同步发送消息失败后，重试的次数
+    retry-times-when-send-async-failed: 3 # 异步发送消息失败后，重试的次数
+    max-message-size: 4096 # 消息最大大小（单位：字节）
+  consumer:
+    group: shrimp_group
+    pull-batch-size: 5 # 每次拉取的最大消息数

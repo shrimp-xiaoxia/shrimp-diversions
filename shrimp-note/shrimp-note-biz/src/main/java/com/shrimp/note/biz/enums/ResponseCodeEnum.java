@@ -24,6 +24,9 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     NOTE_STATUS_FAIL("note-200012","该笔记状态错误"),
     NOTE_UPDATE_PERMISSION_FAIL("note-20013","你没有更新此笔记的权限"),
     NOTE_TOPIC_FIND_FAIL("note-20014","更新主题异常"),
+    NOTE_CANT_VISIBLE_ONLY_ME("NOTE-20015", "此笔记无法修改为仅自己可见"),
+    NOTE_UPDATE_IS_TOP_FAIL("NOTE-20016", "此笔记更新置顶情况失败"),
+    NOTE_CANT_FAIL("NOTE-10017","你没有该权限"),
     ;
     final String errorCode;
     final String errorMessage;

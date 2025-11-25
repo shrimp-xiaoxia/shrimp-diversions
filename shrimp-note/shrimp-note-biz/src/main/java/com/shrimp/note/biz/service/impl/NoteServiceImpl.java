@@ -10,6 +10,7 @@ import com.shrimp.framework.common.exception.BizException;
 import com.shrimp.framework.common.response.Response;
 import com.shrimp.framework.common.util.JsonUtils;
 import com.shrimp.kv.dto.rsp.FindNoteContentRspDTO;
+import com.shrimp.note.biz.constants.MQConstants;
 import com.shrimp.note.biz.constants.RedisKeyConstants;
 import com.shrimp.note.biz.domain.dataobject.NoteDO;
 import com.shrimp.note.biz.domain.dataobject.TopicDO;
@@ -19,9 +20,7 @@ import com.shrimp.note.biz.enums.NoteStatusEnum;
 import com.shrimp.note.biz.enums.NoteTypeEnum;
 import com.shrimp.note.biz.enums.NoteVisibleEnum;
 import com.shrimp.note.biz.enums.ResponseCodeEnum;
-import com.shrimp.note.biz.model.vo.req.FindNoteDetailReqVO;
-import com.shrimp.note.biz.model.vo.req.PublishNoteReqVO;
-import com.shrimp.note.biz.model.vo.req.UpdateNoteReqVO;
+import com.shrimp.note.biz.model.vo.req.*;
 import com.shrimp.note.biz.model.vo.rsp.FindNoteDetailRspVO;
 import com.shrimp.note.biz.rpc.DistributedIdGeneratorRpcService;
 import com.shrimp.note.biz.rpc.KeyValueRpcService;
@@ -32,7 +31,12 @@ import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.rocketmq.client.producer.SendCallback;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +66,8 @@ public class NoteServiceImpl implements NoteService {
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
 
     private static final Cache<Long, FindNoteDetailRspVO> LOCAL_NOTE_DETAIL_CACHE = Caffeine.newBuilder()
             .initialCapacity(1000)
@@ -300,14 +306,15 @@ public class NoteServiceImpl implements NoteService {
     public Response<?> updateNote(UpdateNoteReqVO updateNoteReqVO) {
 //        获取ID
         Long id = updateNoteReqVO.getId();
+        Long loginUserId = LoginUserContextHolder.getLoginUserId();
 //        查询更新前的noteDetail
         NoteDO oldNoteDO = noteDOMapper.selectByPrimaryKey(id);
-        Preconditions.checkArgument(ObjUtil.isNotNull(oldNoteDO), "该笔记不存在");
-//        获取更新前的noteDetail中的creator,判断是否=loginId
-        Long creatorId = oldNoteDO.getCreatorId();
-        if (!ObjUtil.equals(oldNoteDO.getCreatorId(), creatorId)) {
-//        !=,抛出错误
-            throw new BizException(ResponseCodeEnum.NOTE_UPDATE_PERMISSION_FAIL);
+
+        if (ObjUtil.isNull(oldNoteDO)) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_EXITS);
+        }
+        if (!ObjUtil.equals(oldNoteDO.getCreatorId(), loginUserId)) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_FAIL);
         }
 //       检查content
         String content = updateNoteReqVO.getContent();
@@ -398,54 +405,137 @@ public class NoteServiceImpl implements NoteService {
             return Response.fail(ResponseCodeEnum.SYSTEM_ERROR);
         }
 
-//        保证数据一致性
+//        删除缓存策略
+        deleteCache(id);
+
+        return Response.success();
+    }
+
+    private void deleteCache(Long id) {
+        //        保证数据一致性
 //        删除Redis缓存
         String noteDetailCacheKey = RedisKeyConstants.buildNoteDetailCacheKey(id);
         redisTemplate.delete(noteDetailCacheKey);
 //        删除本地缓存
-        LOCAL_NOTE_DETAIL_CACHE.invalidate(id);
+//        LOCAL_NOTE_DETAIL_CACHE.invalidate(id);
+        rocketMQTemplate.syncSend(MQConstants.TOPIC_DELETE_NOTE_LOCAL_CACHE, id);
+        log.info("====> MQ：删除笔记本地缓存发送成功...");
+//        延迟双删
+        Message<String> message = MessageBuilder.withPayload(String.valueOf(id)).build();
+        rocketMQTemplate.asyncSend(MQConstants.TOPIC_DELAY_DELETE_NOTE_REDIS_CACHE, message,
+                new SendCallback() {
+                    @Override
+                    public void onSuccess(SendResult sendResult) {
+                        log.info("## 延时删除 Redis 笔记缓存消息发送成功...");
+                    }
 
+                    @Override
+                    public void onException(Throwable e) {
+                        log.error("## 延时删除 Redis 笔记缓存消息发送失败...", e);
+                    }
+                },
+                3000,
+                1);
+    }
+
+    @Override
+    public void deleteNoteDetailLocalCache(Long noteId) {
+        LOCAL_NOTE_DETAIL_CACHE.invalidate(noteId);
+    }
+
+    @Override
+    public Response<?> deleteNote(DeleteNoteReqVO deleteNoteReqVO) {
+        Long id = deleteNoteReqVO.getId();
+        Long loginUserId = LoginUserContextHolder.getLoginUserId();
+        NoteDO oldNote = noteDOMapper.selectByPrimaryKey(id);
+//        检查笔记是否存在
+        if (ObjUtil.isNull(oldNote)) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_EXITS);
+        }
+//        检查该用户是否有权限删除
+        if (!ObjUtil.equals(oldNote.getCreatorId(), loginUserId)) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_FAIL);
+        }
+
+//        标记DB存储的笔记为已经删除状态
+        NoteDO noteDO = NoteDO.builder()
+                .id(id)
+                .status(Byte.valueOf(NoteStatusEnum.DELETED.getCode().toString()))
+                .updateTime(LocalDateTime.now())
+                .build();
+        int result = noteDOMapper.updateByPrimaryKeySelective(noteDO);
+//        根据更新结果判断笔记是否存在
+//        如果不存在，则抛出异常=
+        if (result == 0) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_EXITS);
+        }
+//        删除缓存策略
+        deleteCache(id);
+//        返回结果
+        return Response.success();
+    }
+
+
+    @Override
+    public Response<?> updateNoteVisibleOnlyMe(UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO) {
+//        提取ID
+        Long id = updateNoteVisibleOnlyMeReqVO.getId();
+        Long userId = LoginUserContextHolder.getLoginUserId();
+        NoteDO oldNote = noteDOMapper.selectByPrimaryKey(id);
+//        检查笔记是否存在
+        if (ObjUtil.isNull(oldNote)) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_EXITS);
+        }
+//        检查该用户是否有权限删除
+        if (!ObjUtil.equals(oldNote.getCreatorId(), userId)) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_FAIL);
+        }
+//        根据ID更新
+        NoteDO noteDO = NoteDO.builder()
+                .id(id)
+                .visible(Byte.valueOf(NoteVisibleEnum.PRIVATE.getCode().toString()))
+                .status(Byte.valueOf(NoteStatusEnum.NORMAL.getCode().toString()))
+                .creatorId(userId)
+                .updateTime(LocalDateTime.now())
+                .build();
+        int result = noteDOMapper.updateNoteVisible(noteDO);
+//        根据更新结果来判断
+        if (result == 0) {
+//        失败,则抛出异常
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_VISIBLE_ONLY_ME);
+        }
+//        删除缓存
+        deleteCache(id);
+        return Response.success();
+    }
+
+    @Override
+    public Response<?> updateNoteIsTop(UpdateNoteIsTopReqVO updateNoteIsTopReqVO) {
+//        提取ID
+        Long id = updateNoteIsTopReqVO.getId();
+        Long userId = LoginUserContextHolder.getLoginUserId();
+        NoteDO oldNote = noteDOMapper.selectByPrimaryKey(id);
+//        检查笔记是否存在
+        if (ObjUtil.isNull(oldNote)) {
+            throw new BizException(ResponseCodeEnum.NOTE_NOT_EXITS);
+        }
+//        检查该用户是否有权限删除
+        if (!ObjUtil.equals(oldNote.getCreatorId(), userId)) {
+            throw new BizException(ResponseCodeEnum.NOTE_CANT_FAIL);
+        }
+//        更新数据
+        NoteDO noteDO = NoteDO.builder()
+                .id(id)
+                .isTop(updateNoteIsTopReqVO.getIsTop())
+                .creatorId(userId)
+                .updateTime(LocalDateTime.now())
+                .status(Byte.valueOf(NoteStatusEnum.NORMAL.getCode().toString()))
+                .build();
+        int result = noteDOMapper.updateNoteIsTop(noteDO);
+        if (result == 0) {
+            throw new BizException(ResponseCodeEnum.NOTE_UPDATE_IS_TOP_FAIL);
+        }
+        deleteCache(id);
         return Response.success();
     }
 }
-
-//docker run -d --network rocketmq \
-//        --name rocketmq-broker --privileged=true \
-//        -p 10912:10912 -p 10911:10911 -p 10909:10909 \
-//        -v /docker/rocketmq/broker/logs:/home/rocketmq/logs/rocketmqlogs \
-//        -v /docker/rocketmq/broker/store:/home/rocketmq/store \
-//        -v /docker/rocketmq/broker/config/broker.conf:/home/rocketmq/rocketmq-5.3.1/conf/broker.conf \
-//        -v /docker/rocketmq/broker/bin/runbroker.sh:/home/rocketmq/rocketmq-5.3.1/bin/runbroker.sh \
-//        -e "NAMESRV_ADDR=rocketmq-namesrv:9876" \
-//apache/rocketmq:5.3.1 sh mqbroker --enable-proxy -c /home/rocketmq/rocketmq-5.3.1/conf/broker.conf
-//
-//docker run -d --network rocketmq \
-//        --name rocketmq-broker --privileged=true \
-//        -p 10912:10912 -p 10911:10911 -p 10909:10909 \
-//        -v E:\docker\rocketmq\broker\logs:/home/rocketmq/logs/rocketmqlogs \
-//        -v E:\docker\rocketmq\broker\store:/home/rocketmq/store \
-//        -v E:\docker\rocketmq\broker\config\broker.conf:/home/rocketmq/rocketmq-5.3.1/conf/broker.conf \
-//        -v E:\docker\rocketmq\broker\bin\runbroker.sh:/home/rocketmq/rocketmq-5.3.1/bin/runbroker.sh \
-//        -e "NAMESRV_ADDR=rocketmq-namesrv:9876" \
-//apache/rocketmq:5.3.1 sh mqbroker --enable-proxy -c /home/rocketmq/rocketmq-5.3.1/conf/broker.conf
-
-
-//network:
-//ethernets:
-//ens33:
-//addresses:
-//        - 192.168.88.128/24
-//routes:
-//        - to: 0.0.0.0/0
-//via: 192.168.88.2
-//nameservers:
-//addresses: [8.8.8.8, 114.114.114.114]
-//version: 2
-
-
-//docker run -d \
-//        --name mysql \
-//        -v /docker/mysql/data:/var/lib/mysql \
-//        -e MYSQL_ROOT_PASSWORD=123321 \
-//        -p 3306:3306 \
-//mysql:8.0

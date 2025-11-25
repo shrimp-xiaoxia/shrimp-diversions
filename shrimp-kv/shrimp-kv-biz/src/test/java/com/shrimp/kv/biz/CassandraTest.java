@@ -29,7 +29,7 @@ public class CassandraTest {
     @Test
     public void selectNoteContent() {
 
-        Optional<NoteContentDO> single = noteContentRepository.findById(UUID.fromString("389067a1-ee67-4e33-866d-b9c34c7b60d9"));
+        Optional<NoteContentDO> single = noteContentRepository.findById(UUID.fromString("887402d2-54b6-4845-b114-9787e36573cb"));
         single.ifPresent(System.out::println);
     }
 
