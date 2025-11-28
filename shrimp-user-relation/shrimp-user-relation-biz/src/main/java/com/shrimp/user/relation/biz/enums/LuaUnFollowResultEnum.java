@@ -13,14 +13,12 @@ import java.util.Objects;
  **/
 @Getter
 @AllArgsConstructor
-public enum LuaResultEnum {
+public enum LuaUnFollowResultEnum {
     // ZSET 不存在
     ZSET_NOT_EXIST(-1L),
-    // 关注已达到上限
-    FOLLOW_LIMIT(-2L),
-    // 已经关注了该用户
-    ALREADY_FOLLOWED(-3L),
-    // 关注成功
+    // 该取关用户不存在
+    USER_NOT_EXISTED(-2L),
+    // 取关成功
     FOLLOW_SUCCESS(0L),
     ;
 
@@ -32,10 +30,10 @@ public enum LuaResultEnum {
      * @param code
      * @return
      */
-    public static LuaResultEnum valueOf(Long code) {
-        for (LuaResultEnum luaResultEnum : LuaResultEnum.values()) {
-            if (Objects.equals(code, luaResultEnum.getCode())) {
-                return luaResultEnum;
+    public static LuaUnFollowResultEnum valueOf(Long code) {
+        for (LuaUnFollowResultEnum luaUnFollowResultEnum : LuaUnFollowResultEnum.values()) {
+            if (Objects.equals(code, luaUnFollowResultEnum.getCode())) {
+                return luaUnFollowResultEnum;
             }
         }
         return null;

@@ -204,8 +204,18 @@
         where phone = #{phone}
     </select>
     <select id="selectById" parameterType="java.lang.Long" resultMap = "BaseResultMap">
-        select id,nickname,avatar
+        select id,nickname,avatar,introduction
         from t_user
         where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectByUserIds" resultMap="BaseResultMap" >
+        select id,nickname,avatar,introduction
+        from t_user
+        where status = 0 and is_deleted = 0
+        and id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>

@@ -15,6 +15,10 @@ import lombok.NoArgsConstructor;
 public class FindUserByIdRspDTO {
 
     private Long id;
+
     private String nickName;
+
     private String avatar;
+
+    private String introduction;
 }

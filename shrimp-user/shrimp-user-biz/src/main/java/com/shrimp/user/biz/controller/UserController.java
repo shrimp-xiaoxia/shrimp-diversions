@@ -4,21 +4,19 @@ import com.shrimp.framework.biz.operationlog.aspect.ApiOperationLog;
 import com.shrimp.framework.common.response.Response;
 import com.shrimp.user.biz.model.vo.UpdateUserInfoReqVO;
 import com.shrimp.user.biz.service.UserService;
-import com.shrimp.user.dto.req.FindUserByIdReqDTO;
-import com.shrimp.user.dto.req.FindUserByPhoneReqDTO;
-import com.shrimp.user.dto.req.RegisterUserReqDTO;
-import com.shrimp.user.dto.req.UpdateUserPasswordReqDTO;
+import com.shrimp.user.dto.req.*;
 import com.shrimp.user.dto.resp.FindUserByIdRspDTO;
 import com.shrimp.user.dto.resp.FindUserByPhoneRspDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author ccb
@@ -57,5 +55,11 @@ public class UserController {
     @ApiOperationLog(description = "通过用户ID查找用户信息接口")
     public Response<FindUserByIdRspDTO> findUserById(@Validated @RequestBody FindUserByIdReqDTO findUserByIdReqDTO) {
         return userService.findUserById(findUserByIdReqDTO);
+    }
+
+    @PostMapping("/findByIds")
+    @ApiOperationLog(description = "通过用户ID集合批量查询用户信息接口")
+    public Response<List<FindUserByIdRspDTO>> findUserByIds(@Validated @RequestBody FindUserByIdsReqDTO findUserByIdsReqDTO) {
+        return userService.findUserByIds(findUserByIdsReqDTO);
     }
 }

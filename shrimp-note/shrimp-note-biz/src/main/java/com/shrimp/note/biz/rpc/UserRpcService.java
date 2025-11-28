@@ -5,7 +5,6 @@ import com.shrimp.user.api.UserFeignApi;
 import com.shrimp.user.dto.req.FindUserByIdReqDTO;
 import com.shrimp.user.dto.resp.FindUserByIdRspDTO;
 import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

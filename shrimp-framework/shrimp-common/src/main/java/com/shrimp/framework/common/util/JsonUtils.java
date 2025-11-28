@@ -1,10 +1,15 @@
 package com.shrimp.framework.common.util;
 
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.json.JSONStrFormatter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
+
+import java.util.Map;
 
 /**
  * @author ccb
@@ -36,4 +41,13 @@ public class JsonUtils {
     public static <T> T parseJSONString(String jsonString, Class<T> clazz) {
         return OBJECT_MAPPER.readValue(jsonString, clazz);
     }
+    @SneakyThrows
+    public static <K, V> Map<K, V> parseMap(String jsonStr, Class<K> keyClass, Class<V> valueClass) throws Exception {
+        // 创建 TypeReference，指定泛型类型
+        TypeReference<Map<K, V>> typeRef = new TypeReference<Map<K, V>>() {
+        };
+        // 将 JSON 字符串转换为 Map
+        return OBJECT_MAPPER.readValue(jsonStr, OBJECT_MAPPER.getTypeFactory().constructMapType(Map.class, keyClass, valueClass));
+    }
+
 }

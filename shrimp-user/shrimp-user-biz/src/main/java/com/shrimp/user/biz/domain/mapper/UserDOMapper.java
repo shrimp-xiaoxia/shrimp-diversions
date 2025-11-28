@@ -1,7 +1,13 @@
 package com.shrimp.user.biz.domain.mapper;
 
 import com.shrimp.user.biz.domain.dataobject.UserDO;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
+/**
+ * @author ccb
+ */
 public interface UserDOMapper {
     int deleteByPrimaryKey(Long id);
 
@@ -18,4 +24,6 @@ public interface UserDOMapper {
     UserDO selectByPhone(String phone);
 
     UserDO selectById(Long id);
+
+    List<UserDO> selectByUserIds(@Param("ids") List<Long> ids);
 }

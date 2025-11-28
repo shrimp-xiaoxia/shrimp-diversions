@@ -2,15 +2,14 @@ package com.shrimp.user.api;
 
 import com.shrimp.framework.common.response.Response;
 import com.shrimp.user.Constants.ApiConstants;
-import com.shrimp.user.dto.req.FindUserByIdReqDTO;
-import com.shrimp.user.dto.req.FindUserByPhoneReqDTO;
-import com.shrimp.user.dto.req.RegisterUserReqDTO;
-import com.shrimp.user.dto.req.UpdateUserPasswordReqDTO;
+import com.shrimp.user.dto.req.*;
 import com.shrimp.user.dto.resp.FindUserByIdRspDTO;
 import com.shrimp.user.dto.resp.FindUserByPhoneRspDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @FeignClient(name = ApiConstants.SERVICE_NAME)
 public interface UserFeignApi {
@@ -27,5 +26,8 @@ public interface UserFeignApi {
 
     @PostMapping(PREFIX + "/findById")
     Response<FindUserByIdRspDTO> findUserById(@RequestBody FindUserByIdReqDTO findUserByIdReqDTO);
+
+    @PostMapping(PREFIX + "/findByIds")
+    Response<List<FindUserByIdRspDTO>> findUserByIds(@RequestBody FindUserByIdsReqDTO findUserByIdsReqDTO);
 }
 
