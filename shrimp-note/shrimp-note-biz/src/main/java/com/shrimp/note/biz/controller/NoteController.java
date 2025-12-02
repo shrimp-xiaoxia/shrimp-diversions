@@ -46,13 +46,25 @@ public class NoteController {
 
     @PostMapping("/visible/onlyme")
     @ApiOperationLog(description = "笔记仅对自己可见接口")
-    public Response<?> visibleOnlyMe(@Validated @RequestBody UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO){
+    public Response<?> visibleOnlyMe(@Validated @RequestBody UpdateNoteVisibleOnlyMeReqVO updateNoteVisibleOnlyMeReqVO) {
         return noteService.updateNoteVisibleOnlyMe(updateNoteVisibleOnlyMeReqVO);
     }
 
     @PostMapping("/top")
     @ApiOperationLog(description = "更新笔记置顶情况接口")
-    public Response<?> updateNoteIsTop(@Validated @RequestBody UpdateNoteIsTopReqVO updateNoteIsTopReqVO){
+    public Response<?> updateNoteIsTop(@Validated @RequestBody UpdateNoteIsTopReqVO updateNoteIsTopReqVO) {
         return noteService.updateNoteIsTop(updateNoteIsTopReqVO);
+    }
+
+    @PostMapping("/like")
+    @ApiOperationLog(description = "点赞笔记接口")
+    public Response<?> likeNote(@Validated @RequestBody LikeNoteReqVO likeNoteReqVO) {
+        return noteService.likeNote(likeNoteReqVO);
+    }
+
+    @PostMapping("/unlike")
+    @ApiOperationLog(description = "取消点赞接口")
+    public Response<?> unlikeNote(@Validated @RequestBody UnlikeNoteReqVO unlikeNoteReqVO) {
+        return noteService.unlikeNote(unlikeNoteReqVO);
     }
 }

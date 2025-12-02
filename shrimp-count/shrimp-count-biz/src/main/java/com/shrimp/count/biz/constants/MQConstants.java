@@ -21,4 +21,11 @@ public interface MQConstants {
     String TOPIC_COUNT_FANS_2_DB = "CountFans2DBTopic";
 
     String TOPIC_COUNT_FOLLOWING_2_DB = "CountFollowing2DBTopic";
+
+    /**
+     * Topic: 计数 - 笔记点赞数
+     */
+    String TOPIC_COUNT_NOTE_LIKE = "CountNoteLikeTopic";
+
+    String TOPIC_COUNT_NOTE_LIKE_2_DB = "CountNoteLike2DBTopic";
 }
