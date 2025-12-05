@@ -15,5 +15,7 @@ public interface NoteCountDOMapper {
 
     int updateByPrimaryKey(NoteCountDO record);
 
-    int insertOrUpdateLikeCountByUserId(NoteCountDO noteCountDO);
+    int insertOrUpdateLikeCountByNoteId(NoteCountDO noteCountDO);
+
+    int insertOrUpdateCollectCountByNoteId(NoteCountDO noteCountDO);
 }

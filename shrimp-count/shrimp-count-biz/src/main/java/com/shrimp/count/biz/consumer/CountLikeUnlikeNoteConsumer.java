@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.shrimp.count.biz.constants.MQConstants;
 import com.shrimp.count.biz.constants.RedisKeyConstants;
 import com.shrimp.count.biz.enums.LikeUnlikeTypeEnum;
+import com.shrimp.count.biz.model.dto.AggregationCountLikeUnlikeNoteMqDTO;
 import com.shrimp.count.biz.model.dto.LikeUnlikeNoteMqDTO;
 import com.shrimp.framework.common.util.JsonUtils;
 import jakarta.annotation.Resource;
@@ -21,6 +22,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,37 +60,61 @@ public class CountLikeUnlikeNoteConsumer implements RocketMQListener<String> {
 //        将list转化为map<Long,MqDTO>
         Map<Long, List<LikeUnlikeNoteMqDTO>> mapByNoteId = likeUnlikeNoteMqDTOS.stream()
                 .collect(Collectors.groupingBy(LikeUnlikeNoteMqDTO::getNoteId));
-//        mqDTO转换成Map<Long,Integer>
-        HashMap<Long, Integer> countMap = Maps.newHashMap();
+//        mqDTO转换成List<Aggregation>
+        List<AggregationCountLikeUnlikeNoteMqDTO> countList = new ArrayList<>(mapByNoteId.size());
         for (Map.Entry<Long, List<LikeUnlikeNoteMqDTO>> entry : mapByNoteId.entrySet()) {
             List<LikeUnlikeNoteMqDTO> list = entry.getValue();
-            Long key = entry.getKey();
-            int count = 0;
+            Long noteId = entry.getKey();
+            Long noteCreatorId = null;
+            int finalCount = 0;
+
             for (LikeUnlikeNoteMqDTO likeUnlikeNoteMqDTO : list) {
+                noteCreatorId = likeUnlikeNoteMqDTO.getNoteCreatorId();
                 if (LikeUnlikeTypeEnum.LIKE.getCode().equals(likeUnlikeNoteMqDTO.getType())) {
-                    count += 1;
+                    finalCount += 1;
                 } else if (LikeUnlikeTypeEnum.UNLIKE.getCode().equals(likeUnlikeNoteMqDTO.getType())) {
-                    count -= 1;
+                    finalCount -= 1;
                 }
             }
-            countMap.put(key, count);
+
+            countList.add(AggregationCountLikeUnlikeNoteMqDTO.builder()
+                    .noteId(noteId)
+                    .noteCreatorId(noteCreatorId)
+                    .count(finalCount)
+                    .build()
+            );
         }
-//        遍历Map
-        countMap.forEach((k, v) -> {
+
+//        遍历countList
+        for (AggregationCountLikeUnlikeNoteMqDTO agg : countList) {
+            Long noteId = agg.getNoteId();
+            Long noteCreatorId = agg.getNoteCreatorId();
+            Integer count = agg.getCount();
+
+//            note方面
             //        构建Redis的key
-            String countNoteKey = RedisKeyConstants.buildCountNoteKey(k);
+            String countNoteKey = RedisKeyConstants.buildCountNoteKey(noteId);
 //        如果对应的key不存在，则不进行修改
             Boolean hasKey = redisTemplate.hasKey(countNoteKey);
             // 若存在才会更新
             // (因为缓存设有过期时间，考虑到过期后，缓存会被删除，这里需要判断一下，存在才会去更新，而初始化工作放在查询计数来做)
             if (Boolean.TRUE.equals(hasKey)) {
-                redisTemplate.opsForHash().increment(countNoteKey, RedisKeyConstants.FIELD_LIKE_TOTAL, v);
+                redisTemplate.opsForHash().increment(countNoteKey, RedisKeyConstants.FIELD_LIKE_TOTAL, count);
             }
-//        存在则进行需改
-        });
+//            笔记创造者方面
+            //        构建Redis的key
+            String countUserKey = RedisKeyConstants.buildCountUserKey(noteCreatorId);
+//        如果对应的key不存在，则不进行修改
+            hasKey = redisTemplate.hasKey(countUserKey);
+            // 若存在才会更新
+            // (因为缓存设有过期时间，考虑到过期后，缓存会被删除，这里需要判断一下，存在才会去更新，而初始化工作放在查询计数来做)
+            if (Boolean.TRUE.equals(hasKey)) {
+                redisTemplate.opsForHash().increment(countUserKey, RedisKeyConstants.FIELD_LIKE_TOTAL, count);
+            }
+        }
 
-//       TODO 发送MQ到数据库落库端
-        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(countMap)).build();
+//        发送MQ到数据库落库端
+        Message<String> message = MessageBuilder.withPayload(JsonUtils.toJsonString(countList)).build();
         String topicCountNoteLike2Db = MQConstants.TOPIC_COUNT_NOTE_LIKE_2_DB;
 
         rocketMQTemplate.asyncSend(topicCountNoteLike2Db, message, new SendCallback() {

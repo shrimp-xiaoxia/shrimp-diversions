@@ -19,4 +19,10 @@ public interface UserCountDOMapper {
     int insertOrUpdateFansTotalByUserId(@Param("count") Integer count, @Param("userId") Long userId);
 
     int insertOrUpdateFollowingTotalByUserId(@Param("count") Integer count, @Param("userId") Long userId);
+
+    int insertOrUpdateLikesTotalByUserId(@Param("count") Integer count, @Param("userId") Long userId);
+
+    int insertOrUpdateCollectsTotalByUserId(@Param("count") Integer count, @Param("userId") Long userId);
+
+    int insertOrUpdateNoteTotalByUserId(@Param("count") Integer count, @Param("userId") Long userId);
 }

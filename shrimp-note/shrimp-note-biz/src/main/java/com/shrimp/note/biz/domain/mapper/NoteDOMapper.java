@@ -20,4 +20,6 @@ public interface NoteDOMapper {
     int updateNoteIsTop(NoteDO record);
 
     int selectCountByNoteId(Long noteId);
+
+    Long selectCreatorIdByNoteId(Long noteId);
 }

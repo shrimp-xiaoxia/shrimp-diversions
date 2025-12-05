@@ -91,10 +91,16 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-    <insert id="insertOrUpdateLikeCountByUserId">
+    <insert id="insertOrUpdateLikeCountByNoteId">
         insert into t_note_count (note_id, like_total)
         VALUES (#{noteId}, #{likeTotal})
         on duplicate key update like_total = like_total + #{likeTotal}
+    </insert>
+
+    <insert id="insertOrUpdateCollectCountByNoteId" parameterType="com.shrimp.count.biz.domain.dataobject.NoteCountDO">
+        insert into t_note_count (note_id, collect_total)
+        values (#{noteId}, #{collectTotal})
+        on duplicate key update collect_total = collect_total + #{collectTotal}
     </insert>
 
 </mapper>

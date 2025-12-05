@@ -63,8 +63,20 @@ public class NoteController {
     }
 
     @PostMapping("/unlike")
-    @ApiOperationLog(description = "取消点赞接口")
+    @ApiOperationLog(description = "取消点赞笔记接口")
     public Response<?> unlikeNote(@Validated @RequestBody UnlikeNoteReqVO unlikeNoteReqVO) {
         return noteService.unlikeNote(unlikeNoteReqVO);
+    }
+
+    @PostMapping("/collect")
+    @ApiOperationLog(description = "收藏笔记接口")
+    public Response<?> collectNote(@Validated @RequestBody CollectNoteReqVO collectNoteReqVO) {
+        return noteService.collectNote(collectNoteReqVO);
+    }
+
+    @PostMapping("/uncollect")
+    @ApiOperationLog(description = "取消收藏笔记接口")
+    public Response<?> unCollectNote(@Validated @RequestBody UnCollectNoteReqVO unCollectNoteReqVO) {
+        return noteService.unCollectNote(unCollectNoteReqVO);
     }
 }
