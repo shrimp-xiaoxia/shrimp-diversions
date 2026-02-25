@@ -14,6 +14,7 @@ import java.util.Map;
 
 /**
  * [Sa-Token 权限认证] 配置类
+ *
  * @author click33
  */
 @Configuration
@@ -31,7 +32,8 @@ public class SaTokenConfigure {
                             .notMatch("/auth/login")// 排除登录接口
                             .notMatch("/auth/verification/code/send") // 排除验证码发送接口
                             .notMatch("/note/note/detail")
-                            .check(r->StpUtil.checkLogin());
+                            .notMatch("/search/search/**")//排除搜索相关的接口
+                            .check(r -> StpUtil.checkLogin());
 
 //                    // 权限认证 -- 不同模块, 校验不同权限
                     SaRouter.match("/auth/logout", r -> StpUtil.checkPermission("app:note:publish"));
@@ -43,11 +45,11 @@ public class SaTokenConfigure {
                 // 异常处理方法：每次setAuth函数出现异常时进入
                 .setError(e -> {
 //                    return SaResult.error(e.getMessage());
-                    if(e instanceof NotLoginException){
-                        throw new NotLoginException(e.getMessage(),null,null);
-                    }else if(e instanceof NotPermissionException || e instanceof NotRoleException){
+                    if (e instanceof NotLoginException) {
+                        throw new NotLoginException(e.getMessage(), null, null);
+                    } else if (e instanceof NotPermissionException || e instanceof NotRoleException) {
                         throw new NotPermissionException(e.getMessage());
-                    }else{
+                    } else {
                         throw new RuntimeException(e);
                     }
                 })

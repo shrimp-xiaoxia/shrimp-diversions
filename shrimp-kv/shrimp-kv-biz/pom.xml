@@ -26,6 +26,16 @@
         </dependency>
 
         <dependency>
+            <groupId>com.shrimp.framework.biz.context</groupId>
+            <artifactId>shrimp-spring-boot-starter-biz-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.shrimp.framework.jackson</groupId>
+            <artifactId>shrimp-spring-boot-starter-jackson-prod</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>

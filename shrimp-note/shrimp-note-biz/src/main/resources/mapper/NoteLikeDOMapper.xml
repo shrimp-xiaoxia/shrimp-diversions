@@ -132,4 +132,13 @@
           and note_id = #{noteId}
           and status = 1
     </update>
+    <insert id="batchInsertOrUpdate" parameterType="list">
+        insert into t_note_like(user_id, note_id, create_time, status) VALUES
+        <foreach collection="noteLikeDOS" item="DO" separator=",">
+            (#{DO.userId},#{DO.noteId},#{DO.createTime},#{DO.status})
+        </foreach>
+        on duplicate key update
+        status = VALUES(status)
+    </insert>
+
 </mapper>

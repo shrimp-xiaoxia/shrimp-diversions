@@ -25,7 +25,7 @@ public interface MQConstants {
     /**
      * Topic: 计数 - 笔记点赞数
      */
-    String TOPIC_COUNT_NOTE_LIKE = "CountNoteLikeTopic";
+    String TOPIC_LIKE_OR_UNLIKE = "LikeUnlikeTopic";
 
     String TOPIC_COUNT_NOTE_LIKE_2_DB = "CountNoteLike2DBTopic";
 
@@ -49,4 +49,15 @@ public interface MQConstants {
      * Tag 标签：笔记删除
      */
     String TAG_NOTE_DELETE = "deleteNote";
+
+
+    /**
+     * Topic: 笔记评论总数计数
+     */
+    String TOPIC_COUNT_NOTE_COMMENT = "CountNoteCommentTopic";
+
+    /**
+     * Topic: 评论热度值更新
+     */
+    String TOPIC_COMMENT_HEAT_UPDATE = "CommentHeatUpdateTopic";
 }

@@ -28,6 +28,18 @@ spring:
             - Path=/relation/**
           filters:
             - StripPrefix=1
+        - id: search
+          uri: lb://shrimp-search
+          predicates:
+            - Path=/search/**
+          filters:
+            - StripPrefix=1
+        - id: comment
+          uri: lb://shrimp-comment-biz
+          predicates:
+            - Path=/comment/**
+          filters:
+            - StripPrefix=1
   data:
     redis:
       database: 0 # Redis 数据库索引（默认为 0）

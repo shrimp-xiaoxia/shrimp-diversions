@@ -102,5 +102,12 @@
         values (#{noteId}, #{collectTotal})
         on duplicate key update collect_total = collect_total + #{collectTotal}
     </insert>
+    <insert id="insertOrUpdateCommentCountByNoteId">
+        insert into t_note_count (note_id, comment_total)
+        values (#{noteId}, #{commentTotal})
+        on duplicate key update comment_total = comment_total + #{commentTotal}
+
+    </insert>
+
 
 </mapper>

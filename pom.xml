@@ -25,6 +25,9 @@
         <module>shrimp-note</module>
         <module>shrimp-user-relation</module>
         <module>shrimp-count</module>
+        <module>shrimp-data-align</module>
+        <module>shrimp-search</module>
+        <module>shrimp-comment</module>
     </modules>
 
     <properties>
@@ -67,6 +70,10 @@
         <caffeine.version>3.1.8</caffeine.version>
         <rocketmq.version>2.2.3</rocketmq.version>
         <buffertrigger.version>0.2.21</buffertrigger.version>
+        <xxl-job.version>2.4.1</xxl-job.version>
+        <elasticsearch.version>7.3.0</elasticsearch.version>
+        <canal.version>1.1.7</canal.version>
+        <rocketmq-client.version>4.9.4</rocketmq-client.version>
     </properties>
 
     <!-- 统一依赖管理 -->
@@ -297,6 +304,60 @@
                 <groupId>com.github.phantomthief</groupId>
                 <artifactId>buffer-trigger</artifactId>
                 <version>${buffertrigger.version}</version>
+            </dependency>
+
+            <!-- XXL-JOB 分布式定时任务调度 -->
+            <dependency>
+                <groupId>com.xuxueli</groupId>
+                <artifactId>xxl-job-core</artifactId>
+                <version>${xxl-job.version}</version>
+            </dependency>
+
+            <!-- Elasticsearch 分布式搜索引擎 -->
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
+            <!-- Canal -->
+            <dependency>
+                <groupId>com.alibaba.otter</groupId>
+                <artifactId>canal.client</artifactId>
+                <version>${canal.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.otter</groupId>
+                <artifactId>canal.common</artifactId>
+                <version>${canal.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.otter</groupId>
+                <artifactId>canal.protocol</artifactId>
+                <version>${canal.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.shrimp.search</groupId>
+                <artifactId>shrimp-search-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- Rocket MQ 客户端 -->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>${rocketmq-client.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

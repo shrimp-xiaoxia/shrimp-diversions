@@ -1,6 +1,7 @@
 package com.shrimp.count.biz.domain.mapper;
 
 import com.shrimp.count.biz.domain.dataobject.NoteCountDO;
+import org.apache.ibatis.annotations.Param;
 
 public interface NoteCountDOMapper {
     int deleteByPrimaryKey(Long id);
@@ -18,4 +19,6 @@ public interface NoteCountDOMapper {
     int insertOrUpdateLikeCountByNoteId(NoteCountDO noteCountDO);
 
     int insertOrUpdateCollectCountByNoteId(NoteCountDO noteCountDO);
+
+    int insertOrUpdateCommentCountByNoteId(@Param("noteId") Long noteId, @Param("commentTotal") Integer commentTotal);
 }

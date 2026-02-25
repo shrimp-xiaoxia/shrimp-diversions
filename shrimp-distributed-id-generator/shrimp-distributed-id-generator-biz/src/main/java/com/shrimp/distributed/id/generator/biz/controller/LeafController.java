@@ -6,10 +6,8 @@ import com.shrimp.distributed.id.generator.biz.exception.LeafServerException;
 import com.shrimp.distributed.id.generator.biz.exception.NoKeyException;
 import com.shrimp.distributed.id.generator.biz.service.SegmentService;
 import com.shrimp.distributed.id.generator.biz.service.SnowflakeService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,11 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/id")
 @Slf4j
 public class LeafController {
-    private Logger logger = LoggerFactory.getLogger(LeafController.class);
 
-    @Autowired
+    @Resource
     private SegmentService segmentService;
-    @Autowired
+    @Resource
     private SnowflakeService snowflakeService;
 
     @RequestMapping(value = "/segment/get/{key}")

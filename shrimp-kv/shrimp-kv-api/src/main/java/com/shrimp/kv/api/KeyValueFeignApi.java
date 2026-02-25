@@ -2,13 +2,15 @@ package com.shrimp.kv.api;
 
 import com.shrimp.framework.common.response.Response;
 import com.shrimp.kv.constants.ApiConstants;
-import com.shrimp.kv.dto.req.AddNoteContentReqDTO;
-import com.shrimp.kv.dto.req.DeleteNoteContentReqDTO;
-import com.shrimp.kv.dto.req.FindNoteContentReqDTO;
+import com.shrimp.kv.dto.req.*;
+import com.shrimp.kv.dto.rsp.FindCommentContentRspDTO;
 import com.shrimp.kv.dto.rsp.FindNoteContentRspDTO;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 /**
  * @author ccb
@@ -25,4 +27,10 @@ public interface KeyValueFeignApi {
 
     @PostMapping(PREFIX + "/note/content/delete")
     public Response<?> deleteNoteContent(@RequestBody DeleteNoteContentReqDTO deleteNoteContentReqDTO);
+
+    @PostMapping(PREFIX + "/comment/content/batchAdd")
+    Response<?> batchAddCommentContent(@RequestBody BatchAddCommentContentReqDTO batchAddCommentContentReqDTO);
+
+    @PostMapping(value = PREFIX + "/comment/content/batchFind")
+    Response<List<FindCommentContentRspDTO>> batchFindCommentContent(@RequestBody BatchFindCommentContentReqDTO batchFindCommentContentReqDTO);
 }

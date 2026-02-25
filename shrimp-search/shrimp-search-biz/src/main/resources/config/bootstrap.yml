@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: shrimp-search-biz
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: http://192.168.88.130:8848
+        namespace: shrimp
+        group: DEFAULT_GROUP

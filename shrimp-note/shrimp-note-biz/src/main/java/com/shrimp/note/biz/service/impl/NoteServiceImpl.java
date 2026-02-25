@@ -411,6 +411,7 @@ public class NoteServiceImpl implements NoteService {
                 .id(id)
                 .title(title)
                 .type(Integer.valueOf(type))
+                .creatorId(creatorId)
                 .imgUris(imagUris)
                 .videoUri(videoUri)
                 .topicId(topicId) //不需要判断该话题是否被删除了
