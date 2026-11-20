@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.shrimp.framework.common.annotation.BrowserId;
 
 @Data
 @AllArgsConstructor
@@ -14,11 +15,13 @@ public class FindCommentItemRspVO {
     /**
      * 评论 ID
      */
+    @BrowserId
     private Long commentId;
 
     /**
      * 发布者用户 ID
      */
+    @BrowserId
     private Long userId;
 
     /**
@@ -65,5 +68,7 @@ public class FindCommentItemRspVO {
      * 最早回复的评论
      */
     private FindCommentItemRspVO firstReplyComment;
+    private Boolean isLiked;
+    private boolean likeStateAvailable;
 
 }

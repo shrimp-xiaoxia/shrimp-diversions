@@ -29,5 +29,8 @@ public class PublishNoteReqVO {
 
     private String content;
 
+    @NotNull(message = "频道不能为空")
+    private Long channelId;
+
     private Long topicId;
 }

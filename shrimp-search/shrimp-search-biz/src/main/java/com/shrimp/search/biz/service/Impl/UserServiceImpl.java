@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
                 Exception e) {
             log.error("==> 查询 Elasticserach 异常: ", e);
         }
-        return PageResponse.success(searchUserRspVOList, pageSize, total);
+        return PageResponse.success(searchUserRspVOList, pageNo, total);
     }
 
     /**

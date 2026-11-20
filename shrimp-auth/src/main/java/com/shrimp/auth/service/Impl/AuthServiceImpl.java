@@ -22,6 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.TimeUnit;
+import java.util.UUID;
+import java.util.Collections;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 @Service
 @Slf4j
@@ -61,9 +65,35 @@ public class AuthServiceImpl implements AuthService {
                 if (!paraCode.equals(redisCode)) {
                     return Response.fail(ResponseCodeEnum.VERIFICATION_CODE_ERROR);
                 }
+                // 保留验证码键以维持发码间隔；使用独立标记原子阻止重复登录。
+                Long ttl = redisTemplate.getExpire(key, TimeUnit.MILLISECONDS);
+                if (ttl == null || ttl <= 0) {
+                    return Response.fail(ResponseCodeEnum.VERIFICATION_CODE_ERROR);
+                }
+                String usedKey = key + ":used";
+                String claim = UUID.randomUUID().toString();
+                if (!Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(usedKey, claim, ttl, TimeUnit.MILLISECONDS))) {
+                    return Response.fail(ResponseCodeEnum.VERIFICATION_CODE_USED);
+                }
+                if (!paraCode.equals(redisTemplate.opsForValue().get(key))) {
+                    releaseClaim(usedKey, claim);
+                    return Response.fail(ResponseCodeEnum.VERIFICATION_CODE_ERROR);
+                }
 //                如果没有账号则注册
-                Long userIdTemp = userRpcService.register(phone);
+                Long userIdTemp;
+                try {
+                    userIdTemp = userRpcService.register(phone);
+                } catch (RuntimeException e) {
+                    // 注册调用失败时尚未签发登录会话；仅释放本次请求持有的标记以允许重试。
+                    try {
+                        releaseClaim(usedKey, claim);
+                    } catch (RuntimeException releaseFailure) {
+                        e.addSuppressed(releaseFailure);
+                    }
+                    throw e;
+                }
                 if(ObjUtil.isNull(userIdTemp)){
+                    releaseClaim(usedKey, claim);
                     throw new BizException(ResponseCodeEnum.LOGIN_FAIL);
                 }
                 userId = userIdTemp;
@@ -146,6 +176,12 @@ public class AuthServiceImpl implements AuthService {
 //
 //        return userId;
 //    }
+
+    private void releaseClaim(String key, String claim) {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>(
+                "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end", Long.class);
+        redisTemplate.execute(script, Collections.singletonList(key), claim);
+    }
 
     @Override
     public Response<?> logout() {

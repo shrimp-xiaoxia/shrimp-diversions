@@ -105,7 +105,6 @@
         from t_note_collection
         where user_id = #{userId}
           and status = 1
-        limit 1
     </select>
     <select id="selectCollectByNoteIdAndLimit" resultMap="BaseResultMap">
         select note_id, create_time
@@ -126,7 +125,7 @@
 <!--    保证只有已收藏的笔记才能被执行更新操作，防止布隆过滤器误判情况下，也会被更新成功。-->
     <update id="updateUnCollect">
         update t_note_collection
-        set status = #{status} and create_time = #{createTime}
+        set status = #{status}, create_time = #{createTime}
         where user_id = #{userId}
           and note_id = #{noteId}
           and status = 1

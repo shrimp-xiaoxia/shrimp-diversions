@@ -97,4 +97,14 @@
         from t_note_count
         where note_id = #{noteId}
     </select>
+
+    <update id="updateCommentTotalByNoteId">
+        update t_note_count
+        set comment_total = comment_total + #{count}
+        where note_id = #{noteId}
+    </update>
+    <select id="countCommentableNote" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM t_note WHERE id = #{noteId} AND status = 1
+        AND (visible = 0 OR (visible = 1 AND creator_id = #{userId}))
+    </select>
 </mapper>

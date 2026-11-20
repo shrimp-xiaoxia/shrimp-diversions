@@ -27,17 +27,20 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
 //        获取响应对象
         ServerHttpResponse response = exchange.getResponse();
-        log.error("==>全局异常捕捉", ex);
 //        判断异常
         Response<?> result;
 //        SaTokenException
         if (ex instanceof NotLoginException) {
+            // Sa-Token 的异常消息可能包含请求令牌，不能写入响应或日志。
+            log.warn("登录校验失败");
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            result = Response.fail(ResponseEnum.UNAUTHORIZED.getErrorCode(),ex.getMessage());
+            result = Response.fail(ResponseEnum.UNAUTHORIZED.getErrorCode(), "登录状态已失效，请重新登录");
         } else if (ex instanceof NotPermissionException) {
+            log.error("==>全局异常捕捉", ex);
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             result = Response.fail(ResponseEnum.UNAUTHORIZED);
         } else {
+            log.error("==>全局异常捕捉", ex);
 //        其他异常
             result = Response.fail(ResponseEnum.SYSTEM_ERROR);
         }

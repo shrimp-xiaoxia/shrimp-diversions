@@ -14,11 +14,13 @@ import com.shrimp.framework.common.util.JsonUtils;
 import com.shrimp.kv.dto.rsp.FindNoteContentRspDTO;
 import com.shrimp.note.biz.constants.MQConstants;
 import com.shrimp.note.biz.constants.RedisKeyConstants;
+import com.shrimp.note.biz.domain.dataobject.ChannelDO;
 import com.shrimp.note.biz.domain.dataobject.NoteCollectionDO;
 import com.shrimp.note.biz.domain.dataobject.NoteDO;
 import com.shrimp.note.biz.domain.dataobject.NoteLikeDO;
 import com.shrimp.note.biz.domain.dataobject.TopicDO;
 import com.shrimp.note.biz.domain.mapper.NoteCollectionDOMapper;
+import com.shrimp.note.biz.domain.mapper.ChannelDOMapper;
 import com.shrimp.note.biz.domain.mapper.NoteDOMapper;
 import com.shrimp.note.biz.domain.mapper.NoteLikeDOMapper;
 import com.shrimp.note.biz.domain.mapper.TopicDOMapper;
@@ -68,6 +70,8 @@ public class NoteServiceImpl implements NoteService {
     private NoteDOMapper noteDOMapper;
     @Resource
     private TopicDOMapper topicDOMapper;
+    @Resource
+    private ChannelDOMapper channelDOMapper;
     @Resource
     private UserRpcService userRpcService;
     @Autowired
@@ -191,6 +195,11 @@ public class NoteServiceImpl implements NoteService {
     public Response<?> publishNote(PublishNoteReqVO publishNoteReqVO) {
         Long userId = LoginUserContextHolder.getLoginUserId();
 
+        ChannelDO channel = channelDOMapper.selectByPrimaryKey(publishNoteReqVO.getChannelId());
+        if (channel == null || Boolean.TRUE.equals(channel.getIsDeleted())) {
+            throw new BizException(ResponseCodeEnum.CHANNEL_NOT_FOUND);
+        }
+
         Integer type = publishNoteReqVO.getType();
         Preconditions.checkArgument(NoteTypeEnum.isValid(type), "该文章类型不合法");
         NoteTypeEnum noteTypeEnum = NoteTypeEnum.valueOf(type);
@@ -250,6 +259,7 @@ public class NoteServiceImpl implements NoteService {
         }
 //        其他信息完善
         noteDO.setTitle(publishNoteReqVO.getTitle());
+        noteDO.setChannelId(publishNoteReqVO.getChannelId());
         noteDO.setCreatorId(userId);
         noteDO.setStatus(Byte.valueOf(NoteStatusEnum.NORMAL.getCode().toString()));
         noteDO.setIsTop(Boolean.FALSE);
@@ -262,8 +272,15 @@ public class NoteServiceImpl implements NoteService {
         } catch (Exception e) {
             log.error("==> 笔记存储失败", e);
             if (contentUuid != null) {
-                keyValueRpcService.deleteNoteContent(contentUuid.toString());
+                try {
+                    if (!keyValueRpcService.deleteNoteContent(contentUuid.toString())) {
+                        log.error("==> 笔记内容清理失败, contentUuid: {}", contentUuid);
+                    }
+                } catch (Exception cleanupException) {
+                    log.error("==> 笔记内容清理异常, contentUuid: {}", contentUuid, cleanupException);
+                }
             }
+            throw new BizException(ResponseCodeEnum.NOTE_PUBLISH_FAIL);
         }
 //        删除可能存在因为缓存空值存储的null值，该方法的并发量不高,可以不使用MQ
         deleteCache(id);
@@ -301,21 +318,26 @@ public class NoteServiceImpl implements NoteService {
 //        本地缓存中取
         FindNoteDetailRspVO noteDetailLocalCache = LOCAL_NOTE_DETAIL_CACHE.getIfPresent(id);
         if (ObjUtil.isNotNull(noteDetailLocalCache)) {
-            log.info("==>本地缓存获取到的数据：{}", noteDetailLocalCache);
-            return Response.success(noteDetailLocalCache);
+            if (hasValidVisibility(noteDetailLocalCache)) {
+                checkNoteVisibility(noteDetailLocalCache.getVisible(), noteDetailLocalCache.getCreatorId(), userId);
+                return Response.success(noteDetailLocalCache);
+            }
+            LOCAL_NOTE_DETAIL_CACHE.invalidate(id);
         }
 //        从缓存中取
         String noteDetailCacheKey = RedisKeyConstants.buildNoteDetailCacheKey(id);
         String JSONStr = (String) redisTemplate.opsForValue().get(noteDetailCacheKey);
         if (StringUtils.isNotBlank(JSONStr)) {
+            if ("null".equals(JSONStr.trim())) {
+                throw new BizException(ResponseCodeEnum.NOTE_NOT_EXITS);
+            }
             FindNoteDetailRspVO findNoteDetailRspVO = JsonUtils.parseJSONString(JSONStr, FindNoteDetailRspVO.class);
-
-//            放入到本地缓存中
-            threadPoolTaskExecutor.submit(() -> {
-                LOCAL_NOTE_DETAIL_CACHE.put(id, findNoteDetailRspVO);
-            });
-
-            return Response.success(findNoteDetailRspVO);
+            if (findNoteDetailRspVO != null && hasValidVisibility(findNoteDetailRspVO)) {
+                checkNoteVisibility(findNoteDetailRspVO.getVisible(), findNoteDetailRspVO.getCreatorId(), userId);
+                threadPoolTaskExecutor.submit(() -> LOCAL_NOTE_DETAIL_CACHE.put(id, findNoteDetailRspVO));
+                return Response.success(findNoteDetailRspVO);
+            }
+            redisTemplate.delete(noteDetailCacheKey);
         }
 
 //        查询笔记数据
@@ -346,14 +368,7 @@ public class NoteServiceImpl implements NoteService {
 
         Long creatorId = noteDO.getCreatorId();
         Byte visible = noteDO.getVisible();
-        NoteVisibleEnum noteVisibleEnum = NoteVisibleEnum.valueOf(Integer.valueOf(visible));
-        //不公开，看是否登录ID是否等于creatorID
-        if (ObjUtil.isNotNull(noteVisibleEnum) && noteVisibleEnum.equals(NoteVisibleEnum.PRIVATE)) {
-            if (ObjUtil.isNull(userId) || !userId.equals(creatorId)) {
-                //若不等于，则抛出错误
-                throw new BizException(ResponseCodeEnum.NOTE_PRIVATE);
-            }
-        }
+        checkNoteVisibility(Integer.valueOf(visible), creatorId, userId);
 
 //        根据creatorId发起远程调用
         CompletableFuture<FindUserByIdRspDTO> userResultFuture = CompletableFuture
@@ -431,6 +446,17 @@ public class NoteServiceImpl implements NoteService {
         });
 //        返回结果
         return Response.success(findNoteDetailRspVO);
+    }
+
+    private boolean hasValidVisibility(FindNoteDetailRspVO detail) {
+        return detail.getCreatorId() != null && NoteVisibleEnum.valueOf(detail.getVisible()) != null;
+    }
+
+    private void checkNoteVisibility(Integer visible, Long creatorId, Long userId) {
+        if (NoteVisibleEnum.valueOf(visible) == null || creatorId == null
+                || (NoteVisibleEnum.PRIVATE.getCode().equals(visible) && !Objects.equals(userId, creatorId))) {
+            throw new BizException(ResponseCodeEnum.NOTE_PRIVATE);
+        }
     }
 
     @SneakyThrows
@@ -868,17 +894,12 @@ public class NoteServiceImpl implements NoteService {
                 int count = noteCollectionDOMapper.selectCollectCountByUserIdAndNoteId(userId, noteId);
                 long expireSeconds = 60 * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
 
+                batchAddNoteCollectToBloom(userId, bloomUserNoteCollectKey, expireSeconds);
                 if (count > 0) {
-                    threadPoolTaskExecutor.submit(() -> {
-                        batchAddNoteCollectToBloom(userId, bloomUserNoteCollectKey, expireSeconds);
-                    });
                     throw new BizException(ResponseCodeEnum.NOTE_ALREADY_COLLECT);
                 }
 
                 redisTemplate.execute(BLOOM_ADD_NOTE_COLLECT_AND_EXPIRE_SCRIPT, Collections.singletonList(bloomUserNoteCollectKey), noteId, expireSeconds);
-                threadPoolTaskExecutor.submit(() -> {
-                    batchAddNoteCollectToBloom(userId, bloomUserNoteCollectKey, expireSeconds);
-                });
             }
             case NOTE_COLLECT -> {
                 Double score = redisTemplate.opsForZSet().score(userNoteCollectZSetKey, noteId);
@@ -954,8 +975,8 @@ public class NoteServiceImpl implements NoteService {
             //如果Bloom不存在
             case NOT_EXISTS: {
                 long expireSeconds = 60 * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
-                //异步同步Bloom
-                threadPoolTaskExecutor.submit(() -> batchAddNoteCollectToBloom(userId, bloomUserNoteCollectListKey, expireSeconds));
+                // 同步加载历史收藏，完成后再继续处理当前请求
+                batchAddNoteCollectToBloom(userId, bloomUserNoteCollectListKey, expireSeconds);
                 //搜索redis
                 Double score = redisTemplate.opsForZSet().score(userNoteCollectZSetKey, noteId);
                 //存在，则跳过

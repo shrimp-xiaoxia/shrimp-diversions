@@ -71,7 +71,7 @@ public class OneLevelCommentFirstReplyCommentIdUpdateConsumer implements RocketM
 
         // 过滤出二级评论的 parent_id（即一级评论 ID），并去重，需要更新对应一级评论的 first_reply_comment_id
         List<Long> parentIds = publishCommentMqDTOS.stream()
-                .filter(publishCommentMqDTO -> Objects.equals(publishCommentMqDTO.getLevel(), CommentLevelEnum.TWO.getValue()))
+                .filter(publishCommentMqDTO -> Objects.equals(publishCommentMqDTO.getLevel(), CommentLevelEnum.TWO.getCode()))
                 .map(CountPublishCommentMqDTO::getParentId)
                 .distinct() // 去重
                 .toList();

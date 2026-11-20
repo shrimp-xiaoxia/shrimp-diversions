@@ -15,6 +15,7 @@
 
 
     <dependencies>
+        <dependency><groupId>com.shrimp.count</groupId><artifactId>shrimp-count-api</artifactId></dependency>
         <dependency>
             <groupId>com.shrimp.framework.common</groupId>
             <artifactId>shrimp-common</artifactId>

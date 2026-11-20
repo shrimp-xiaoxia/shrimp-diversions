@@ -32,11 +32,20 @@ public class SaTokenConfigure {
                             .notMatch("/auth/login")// 排除登录接口
                             .notMatch("/auth/verification/code/send") // 排除验证码发送接口
                             .notMatch("/note/note/detail")
+                            .notMatch("/note/note/interaction-state")
+                            .notMatch("/note/channel/list")
+                            .notMatch("/note/topic/list")
+                            .notMatch("/note/discover/note/list")
+                            .notMatch("/note/profile/note/list")
+                            .notMatch("/user/user/profile")
+                            .notMatch("/comment/comment/list")
+                            .notMatch("/comment/comment/child/list")
+                            .notMatch("/relation/relation/following/list")
+                            .notMatch("/relation/relation/fans/list")
                             .notMatch("/search/search/**")//排除搜索相关的接口
                             .check(r -> StpUtil.checkLogin());
 
 //                    // 权限认证 -- 不同模块, 校验不同权限
-                    SaRouter.match("/auth/logout", r -> StpUtil.checkPermission("app:note:publish"));
 //                    SaRouter.match("/admin/**", r -> StpUtil.checkPermission("admin"));
 //                    SaRouter.match("/goods/**", r -> StpUtil.checkPermission("goods"));
 //                    SaRouter.match("/orders/**", r -> StpUtil.checkPermission("orders"));

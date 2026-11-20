@@ -11,6 +11,9 @@
   <sql id="Base_Column_List">
     id, `name`, create_time, update_time, is_deleted
   </sql>
+  <select id="selectEnabled" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from t_channel where is_deleted = 0 order by id
+  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />

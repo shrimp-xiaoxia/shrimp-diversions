@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjUtil;
 import com.github.phantomthief.collection.BufferTrigger;
 import com.google.common.collect.Lists;
 import com.shrimp.count.biz.constants.MQConstants;
+import com.shrimp.count.biz.constants.RedisKeyConstants;
 import com.shrimp.count.biz.domain.mapper.CommentDOMapper;
 import com.shrimp.count.biz.domain.mapper.NoteCountDOMapper;
 import com.shrimp.count.biz.enums.CommentLevelEnum;
@@ -17,6 +18,8 @@ import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -37,6 +40,8 @@ public class CountNoteChildCommentConsumer implements RocketMQListener<String> {
     private CommentDOMapper commentDOMapper;
     @Resource
     private RocketMQTemplate rocketMQTemplate;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     private BufferTrigger<String> bufferTrigger = BufferTrigger.<String>batchBlocking()
             .bufferSize(5000)
@@ -68,7 +73,7 @@ public class CountNoteChildCommentConsumer implements RocketMQListener<String> {
                 .filter(dto -> ObjUtil.equals(dto.getLevel(), CommentLevelEnum.TWO.getCode()))
                 .collect(Collectors.groupingBy(CountPublishCommentMqDTO::getParentId));
 
-        if(CollUtil.isEmpty(mapByParentId)) {
+        if (CollUtil.isEmpty(mapByParentId)) {
             return;
         }
 
@@ -77,6 +82,14 @@ public class CountNoteChildCommentConsumer implements RocketMQListener<String> {
             Long commentId = entry.getKey();
             int childCommentTotal = entry.getValue().size();
             if (childCommentTotal > 0) {
+                //更新Redis缓存中的评论计数数据
+                //构建key
+                String countChildCommentKey = RedisKeyConstants.buildCountCommentKey(commentId);
+                Boolean hasKey = redisTemplate.hasKey(countChildCommentKey);
+                if (hasKey) {
+                    redisTemplate.opsForHash()
+                            .increment(countChildCommentKey, RedisKeyConstants.FIELD_CHILD_COMMENT_TOTAL, childCommentTotal);
+                }
                 commentDOMapper.updateChildCommentTotalInt(commentId, childCommentTotal);
             }
         });

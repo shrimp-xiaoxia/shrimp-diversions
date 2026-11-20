@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Optional;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
@@ -30,20 +31,10 @@ public class GlobalExceptionHandler {
         String errorCode = ResponseCodeEnum.PARAM_VALID_FAIL.getErrorCode();
 
         BindingResult bindingResult = e.getBindingResult();
-        StringBuilder stringBuilder = new StringBuilder();
-        Optional.ofNullable(bindingResult.getFieldErrors()).ifPresent(
-                fieldErrors -> {
-                    fieldErrors.forEach(error -> {
-                        stringBuilder.append(error.getField())
-                                .append(" ")
-                                .append(error.getDefaultMessage())
-                                .append("，当前值：")
-                                .append(error.getRejectedValue())
-                                .append(";");
-                    });
-                }
-        );
-        String errorMess = stringBuilder.toString();
+        String errorMess = bindingResult.getFieldErrors().stream()
+                .sorted(Comparator.comparing(error -> error.getField()))
+                .map(error -> error.getField() + " " + error.getDefaultMessage() + ";")
+                .collect(Collectors.joining());
         log.warn("{} request fail, errorCode: {}，errorMess: {}", request.getRequestURI(), errorCode, errorMess);
         return Response.fail(errorCode, errorMess);
     }

@@ -133,7 +133,7 @@ public class Comment2DBConsumer {
     private void syncOneLevelComment2RedisZSet(List<CommentBO> commentBOS) {
 //        根据noteId来划分
         Map<Long, List<CommentBO>> mapByNoteId = commentBOS.stream()
-                .filter(bo -> ObjUtil.equals(bo.getLevel(), CommentLevelEnum.ONE.getValue()))
+                .filter(bo -> ObjUtil.equals(bo.getLevel(), CommentLevelEnum.ONE.getCode()))
                 .collect(Collectors.groupingBy(CommentBO::getNoteId));
         if (CollUtil.isEmpty(mapByNoteId)) {
             return;
@@ -207,7 +207,7 @@ public class Comment2DBConsumer {
             CommentBO commentBO = CommentBO.builder()
                     .id(publishCommentMqDTO.getCommentId())
                     .isContentEmpty(true)
-                    .level(CommentLevelEnum.ONE.getValue())
+                    .level(CommentLevelEnum.ONE.getCode())
                     .imageUrl(imageUrl)
                     .noteId(publishCommentMqDTO.getNoteId())
                     .parentId(publishCommentMqDTO.getNoteId())
@@ -235,12 +235,12 @@ public class Comment2DBConsumer {
                 CommentDO commentDO = commentIdAndCommentDOMap.get(replyCommentId);
                 if (ObjUtil.isNotNull(commentDO)) {
 //                            为二级评论
-                    commentBO.setLevel(CommentLevelEnum.TWO.getValue());
+                    commentBO.setLevel(CommentLevelEnum.TWO.getCode());
                     commentBO.setReplyCommentId(replyCommentId);
                     commentBO.setReplyUserId(commentDO.getUserId());
 //                            处理父评论
                     commentBO.setParentId(commentDO.getId());
-                    if (ObjUtil.equals(commentDO.getLevel(), CommentLevelEnum.TWO.getValue())) {
+                    if (ObjUtil.equals(commentDO.getLevel(), CommentLevelEnum.TWO.getCode())) {
                         commentBO.setParentId(commentDO.getParentId());
                     }
                 }

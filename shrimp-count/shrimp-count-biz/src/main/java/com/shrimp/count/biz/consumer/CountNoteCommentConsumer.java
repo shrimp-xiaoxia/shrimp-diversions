@@ -5,6 +5,7 @@ import com.alibaba.druid.support.json.JSONUtils;
 import com.github.phantomthief.collection.BufferTrigger;
 import com.google.common.collect.Lists;
 import com.shrimp.count.biz.constants.MQConstants;
+import com.shrimp.count.biz.constants.RedisKeyConstants;
 import com.shrimp.count.biz.domain.mapper.NoteCountDOMapper;
 import com.shrimp.count.biz.model.dto.CountPublishCommentMqDTO;
 import com.shrimp.framework.common.util.JsonUtils;
@@ -12,6 +13,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 public class CountNoteCommentConsumer implements RocketMQListener<String> {
     @Resource
     private NoteCountDOMapper noteCountDOMapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     private BufferTrigger<String> bufferTrigger = BufferTrigger.<String>batchBlocking()
             .bufferSize(5000)
@@ -51,7 +55,7 @@ public class CountNoteCommentConsumer implements RocketMQListener<String> {
                 List<CountPublishCommentMqDTO> countPublishCommentMqDTOS = JsonUtils.parseList(message, CountPublishCommentMqDTO.class);
                 countPublishCommentMqDTOList.addAll(countPublishCommentMqDTOS);
             } catch (Exception e) {
-                log.error("",e);
+                log.error("", e);
             }
         });
 
@@ -65,6 +69,17 @@ public class CountNoteCommentConsumer implements RocketMQListener<String> {
         mapByNoteId.entrySet().stream().forEach(entry -> {
             Long noteId = entry.getKey();
             int count = entry.getValue().size();
+
+//            更新Redis缓存中的笔记评论总数
+//            构建KEY
+            String noteCountKey = RedisKeyConstants.buildCountNoteKey(noteId);
+//            若KEY存在
+            Boolean hasKey = redisTemplate.hasKey(noteCountKey);
+            if (hasKey) {
+//                则累加更新
+                redisTemplate.opsForHash().increment(noteCountKey, RedisKeyConstants.FIELD_COMMENT_TOTAL, count);
+            }
+
 //        插入数据
             if (count > 0) {
                 noteCountDOMapper.insertOrUpdateCommentCountByNoteId(noteId, count);

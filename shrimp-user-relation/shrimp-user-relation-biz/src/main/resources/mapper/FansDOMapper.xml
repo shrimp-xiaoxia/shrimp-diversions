@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shrimp.user.relation.biz.domain.mapper.FansDOMapper">
+  <select id="countAvailable" resultType="long">
+    select count(*) from t_fans f join t_user u on u.id = f.fans_user_id
+    where f.user_id = #{userId} and u.is_deleted = 0 and u.status = 0
+  </select>
+  <select id="pageAvailable" resultType="java.lang.Long">
+    select f.fans_user_id from t_fans f join t_user u on u.id = f.fans_user_id
+    where f.user_id = #{userId} and u.is_deleted = 0 and u.status = 0
+    order by f.create_time desc, f.id desc limit #{offset}, 10
+  </select>
   <resultMap id="BaseResultMap" type="com.shrimp.user.relation.biz.domain.dataobject.FansDO">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />

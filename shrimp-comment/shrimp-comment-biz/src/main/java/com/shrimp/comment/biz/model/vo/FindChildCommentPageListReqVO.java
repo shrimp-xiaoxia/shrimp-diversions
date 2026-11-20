@@ -19,4 +19,7 @@ public class FindChildCommentPageListReqVO {
 
     @NotNull(message = "页码不能为空")
     private Integer pageNo = 1;
+
+    /** 是否包含首条回复；未传时保持原先跳过首条的分页语义。 */
+    private Boolean includeFirst;
 }

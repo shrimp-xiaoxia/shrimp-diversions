@@ -201,9 +201,9 @@ public class RelationServiceImpl implements RelationService {
             //查询数据库
             List<FollowingDO> followingDOS = followingDOMapper.selectByUserId(loginUserId);
             long expireSeconds = 60 * 60 * 24 + RandomUtil.randomInt(60 * 60 * 24);
-            //若查询出来的List为空，则抛出取关用户不存在的异常
+            // 没有关注记录，无法取消关注
             if (followingDOS == null || followingDOS.isEmpty()) {
-                throw new BizException(ResponseCodeEnum.FOLLOW_USER_NOT_EXISTED);
+                throw new BizException(ResponseCodeEnum.USER_NOT_FOLLOW_FAIL);
             }
             //批量插入，执行lua脚本
             Object[] args = buildFollowArgs(followingDOS, expireSeconds);

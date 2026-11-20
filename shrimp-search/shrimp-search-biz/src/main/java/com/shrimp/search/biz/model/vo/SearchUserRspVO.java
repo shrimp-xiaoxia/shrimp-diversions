@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.shrimp.framework.common.annotation.BrowserId;
 
 /**
  * @author ccb
@@ -16,7 +17,10 @@ public class SearchUserRspVO {
     /**
      * 用户ID
      */
+    @BrowserId
     private Long userId;
+    private Boolean isLiked;
+    private boolean followStateAvailable;
 
     /**
      * 昵称

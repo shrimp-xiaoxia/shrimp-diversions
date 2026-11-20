@@ -20,6 +20,7 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     USER_NOT_FOUND("AUTH-20005","该用户不存在"),
     PHONE_OR_PASSWORD_ERROR("AUTH-20006","手机号或者密码错误"),
     LOGIN_FAIL("AUTH-20007", "登录失败"),
+    VERIFICATION_CODE_USED("AUTH-20101", "验证码已使用，请在发送间隔结束后重新获取"),
     ;
 
     // 异常码

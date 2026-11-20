@@ -8,8 +8,9 @@ import com.shrimp.user.dto.resp.FindUserByIdRspDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * @author ccb
@@ -23,16 +24,17 @@ public class UserRpcService {
         if (CollUtil.isEmpty(userIds)) {
             return null;
         }
-        FindUserByIdsReqDTO findUserByIdsReqDTO = FindUserByIdsReqDTO.builder().ids(
-                userIds.stream().distinct().collect(Collectors.toList())
-        ).build();
-
-        Response<List<FindUserByIdRspDTO>> response = userFeignApi.findUserByIds(findUserByIdsReqDTO);
-
-        if (!response.isSuccess() || CollUtil.isEmpty(response.getData())) {
-            return null;
+        List<Long> distinctIds = userIds.stream().filter(Objects::nonNull).distinct().toList();
+        List<FindUserByIdRspDTO> result = new ArrayList<>();
+        for (int start = 0; start < distinctIds.size(); start += 10) {
+            var request = FindUserByIdsReqDTO.builder()
+                    .ids(distinctIds.subList(start, Math.min(start + 10, distinctIds.size())))
+                    .build();
+            Response<List<FindUserByIdRspDTO>> response = userFeignApi.findUserByIds(request);
+            if (response == null || !response.isSuccess()) return null;
+            if (CollUtil.isNotEmpty(response.getData())) result.addAll(response.getData());
         }
-        return response.getData();
+        return result.isEmpty() ? null : result;
 
     }
 }

@@ -5,6 +5,13 @@ import com.shrimp.framework.common.response.Response;
 import com.shrimp.note.biz.model.vo.req.*;
 import com.shrimp.note.biz.model.vo.rsp.FindNoteDetailRspVO;
 import com.shrimp.note.biz.service.NoteService;
+import com.shrimp.note.biz.rpc.UserRpcService;
+import com.shrimp.user.dto.resp.FindUserByIdRspDTO;
+import com.shrimp.count.api.CountFeignApi;
+import com.shrimp.count.dto.CountQueryReqDTO;
+import com.shrimp.count.dto.CountResultDTO;
+import java.util.List;
+import org.springframework.beans.BeanUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -19,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class NoteController {
     @Resource
     private NoteService noteService;
+    @Resource private CountFeignApi countFeignApi;
+    @Resource private UserRpcService userRpcService;
 
     @PostMapping("/publish")
     @ApiOperationLog(description = "发布笔记接口")
@@ -29,7 +38,32 @@ public class NoteController {
     @PostMapping("/detail")
     @ApiOperationLog(description = "查询笔记详情接口")
     public Response<FindNoteDetailRspVO> findNoteDetail(@Validated @RequestBody FindNoteDetailReqVO findNoteDetailReqVO) {
-        return noteService.findNoteDetail(findNoteDetailReqVO);
+        Response<FindNoteDetailRspVO> response = noteService.findNoteDetail(findNoteDetailReqVO);
+        if (response == null || !response.isSuccess() || response.getData() == null) return response;
+        FindNoteDetailRspVO data = new FindNoteDetailRspVO();
+        BeanUtils.copyProperties(response.getData(), data);
+        data.setCreatorName(null);
+        data.setAvatar(null);
+        if (data.getCreatorId() != null) {
+            try {
+                FindUserByIdRspDTO creator = userRpcService.findUserById(data.getCreatorId());
+                if (creator != null) {
+                    data.setCreatorName(creator.getNickName());
+                    data.setAvatar(creator.getAvatar());
+                }
+            } catch (RuntimeException e) { log.warn("笔记作者资料查询失败", e); }
+        }
+        try {
+            CountQueryReqDTO query = new CountQueryReqDTO(); query.setIds(List.of(findNoteDetailReqVO.getId()));
+            Response<List<CountResultDTO>> counts = countFeignApi.findNotes(query);
+            if (counts != null && counts.isSuccess() && counts.getData() != null && !counts.getData().isEmpty()) {
+                CountResultDTO value = counts.getData().get(0);
+                data.setLikeTotal(value.getLikeTotal()); data.setLikeTotalAvailable(value.getLikeTotal() != null);
+                data.setCollectTotal(value.getCollectTotal()); data.setCollectTotalAvailable(value.getCollectTotal() != null);
+                data.setCommentTotal(value.getCommentTotal()); data.setCommentTotalAvailable(value.getCommentTotal() != null);
+            }
+        } catch (RuntimeException e) { log.warn("笔记计数查询失败", e); }
+        return Response.success(data);
     }
 
     @PostMapping("/update")

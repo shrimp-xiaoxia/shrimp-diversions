@@ -79,6 +79,16 @@
     <!-- 统一依赖管理 -->
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.shrimp.user.relation</groupId>
+                <artifactId>shrimp-user-relation-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.shrimp.count</groupId>
+                <artifactId>shrimp-count-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
             <!-- Spring Boot 官方依赖管理 -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

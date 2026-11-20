@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.spring.annotation.ConsumeMode;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
@@ -21,7 +22,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RocketMQMessageListener(consumerGroup = "shrimp_group_" + MQConstants.TOPIC_COLLECT_OR_UNCOLLECTED,
-        topic = MQConstants.TOPIC_COLLECT_OR_UNCOLLECTED
+        topic = MQConstants.TOPIC_COLLECT_OR_UNCOLLECTED,
+        consumeMode = ConsumeMode.ORDERLY
 )
 @Slf4j
 public class CollectUnCollectNoteConsumer implements RocketMQListener<Message> {

@@ -15,6 +15,8 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency><groupId>com.shrimp.count</groupId><artifactId>shrimp-count-api</artifactId></dependency>
+        <dependency><groupId>com.shrimp.user.relation</groupId><artifactId>shrimp-user-relation-api</artifactId></dependency>
         <dependency>
             <groupId>com.shrimp.framework.common</groupId>
             <artifactId>shrimp-common</artifactId>

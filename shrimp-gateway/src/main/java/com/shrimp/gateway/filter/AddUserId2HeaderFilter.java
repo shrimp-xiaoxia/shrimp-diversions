@@ -38,6 +38,10 @@ public class AddUserId2HeaderFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("==================> TokenConvertFilter");
 
+        // Never trust a user id supplied by the client, including on public routes.
+        exchange = exchange.mutate().request(builder ->
+                builder.headers(headers -> headers.remove(GlobalConstants.USER_ID))).build();
+
         // 从请求头中获取 Token 数据
         List<String> tokenList = exchange.getRequest().getHeaders().get(TOKEN_HEADER_KEY);
 
@@ -54,7 +58,7 @@ public class AddUserId2HeaderFilter implements GlobalFilter {
         // 构建 Redis Key
         String tokenRedisKey = RedisKeyConstants.SA_TOKEN_TOKEN_KEY_PREFIX + token;
         // 查询 Redis, 获取用户 ID
-        Integer userId = (Integer) redisTemplate.opsForValue().get(tokenRedisKey);
+        Object userId = redisTemplate.opsForValue().get(tokenRedisKey);
 
         if (Objects.isNull(userId)) {
             // 若没有登录，则直接放行

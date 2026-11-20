@@ -27,6 +27,8 @@ public interface MQConstants {
      */
     String TOPIC_LIKE_OR_UNLIKE = "LikeUnlikeTopic";
 
+    String TOPIC_COUNT_NOTE_LIKE = "CountNoteLikeTopic";
+
     String TOPIC_COUNT_NOTE_LIKE_2_DB = "CountNoteLike2DBTopic";
 
     /**
@@ -60,4 +62,20 @@ public interface MQConstants {
      * Topic: 评论热度值更新
      */
     String TOPIC_COMMENT_HEAT_UPDATE = "CommentHeatUpdateTopic";
+
+    /**
+     * Topic:评论点赞、取消点赞共用一个Topic
+     */
+    String TOPIC_COMMENT_LIKE_OR_UNLIKE = "CommentLikeOrUnlikeTopic";
+
+    /**
+     * tag:评论点赞
+     */
+    String TAG_LIKE = "Like";
+    /**
+     * tag:取消评论点赞
+     */
+    String TAG_UNLIKE = "Unlike";
+
+    String TOPIC_COMMENT_LIKE_OR_UNLIKE_2_DB = "CommentLikeOrUnlike2DBTopic";
 }

@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface FollowingDOMapper {
+    List<Long> selectFollowingIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+    long countAvailable(@Param("userId") Long userId);
+    List<Long> pageAvailable(@Param("userId") Long userId, @Param("offset") long offset);
     int deleteByPrimaryKey(Long id);
 
     int insert(FollowingDO record);

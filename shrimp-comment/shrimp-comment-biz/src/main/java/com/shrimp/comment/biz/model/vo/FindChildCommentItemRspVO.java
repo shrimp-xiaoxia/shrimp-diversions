@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.shrimp.framework.common.annotation.BrowserId;
 
 /**
  * @author ccb
@@ -15,8 +16,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FindChildCommentItemRspVO {
 
+    @BrowserId
     private Long commentId;
 
+    @BrowserId
     private Long userId;
 
     private String avatar;
@@ -33,5 +36,8 @@ public class FindChildCommentItemRspVO {
 
     private String replyUserName;
 
+    @BrowserId
     private Long replyUserId;
+    private Boolean isLiked;
+    private boolean likeStateAvailable;
 }

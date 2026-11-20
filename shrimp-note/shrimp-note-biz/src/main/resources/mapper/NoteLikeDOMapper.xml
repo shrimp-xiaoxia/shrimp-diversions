@@ -92,6 +92,10 @@
   </update>
 
 
+    <select id="selectLikedNoteIds" resultType="java.lang.Long">
+        select note_id from t_note_like where user_id = #{userId} and status = 1 and note_id in
+        <foreach collection="noteIds" item="noteId" open="(" separator="," close=")">#{noteId}</foreach>
+    </select>
     <select id="selectCountByUserIdAndNoteId" resultType="java.lang.Integer">
         select count(1)
         from t_note_like

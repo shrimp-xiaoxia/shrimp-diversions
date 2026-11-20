@@ -13,6 +13,7 @@ import com.shrimp.search.biz.enums.NotePublishTimeRangeEnum;
 import com.shrimp.search.biz.enums.NoteSortTypeEnum;
 import com.shrimp.search.biz.enums.ResponseCodeEnum;
 import com.shrimp.search.biz.index.NoteIndex;
+import com.shrimp.search.biz.index.NoteCardFields;
 import com.shrimp.search.biz.model.vo.SearchNoteReqVO;
 import com.shrimp.search.biz.model.vo.SearchNoteRspVO;
 import com.shrimp.search.biz.service.NoteService;
@@ -125,8 +126,7 @@ public class NoteServiceImpl implements NoteService {
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
 
                 long noteId = ((Number) sourceAsMap.get(NoteIndex.FIELD_NOTE_ID)).longValue();
-                String nickname = (String) sourceAsMap.get(NoteIndex.FIELD_NOTE_NICKNAME);
-                String avatar = (String) sourceAsMap.get(NoteIndex.FIELD_NOTE_AVATAR);
+                NoteCardFields cardFields = NoteCardFields.from(sourceAsMap);
                 String cover = (String) sourceAsMap.get(NoteIndex.FIELD_NOTE_COVER);
                 String title = (String) sourceAsMap.get(NoteIndex.FIELD_NOTE_TITLE);
                 int likeCount = 0;
@@ -155,8 +155,11 @@ public class NoteServiceImpl implements NoteService {
 
                 SearchNoteRspVO searchNoteRspVO = SearchNoteRspVO.builder()
                         .noteId(noteId)
-                        .nickname(nickname)
-                        .avatar(avatar)
+                        .nickname(cardFields.nickname())
+                        .avatar(cardFields.avatar())
+                        .creatorId(cardFields.creatorId())
+                        .type(cardFields.type())
+                        .videoUri(cardFields.videoUri())
                         .cover(cover)
                         .title(title)
                         .likeCount(NumberUtils.formatNumberString(likeCount))
@@ -170,6 +173,7 @@ public class NoteServiceImpl implements NoteService {
             }
         } catch (Exception e) {
             log.error("==>  查询 Elasticserach 异常", e);
+            throw new BizException(ResponseCodeEnum.SYSTEM_ERROR);
         }
 
         return PageResponse.success(searchNoteRspVOList, pageNo, total);

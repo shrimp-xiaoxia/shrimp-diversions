@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local agent instructions (all directory levels and case variants) ###
+[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]
+
+### Local workspace directories ###
+/.agents/
+/.idea/
+/.understand-anything/
+/agent-plan/
+/agent_test/
+/docs/
+/logs/
+
+# Maven generated files
+.flattened-pom.xml

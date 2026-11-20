@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.shrimp.comment.biz.constants.MQConstants;
 import com.shrimp.comment.biz.constants.RedisKeyConstants;
-import com.shrimp.comment.biz.domain.bo.CommentBO;
 import com.shrimp.comment.biz.domain.bo.CommentHeatBO;
 import com.shrimp.comment.biz.domain.dataobject.CommentDO;
 import com.shrimp.comment.biz.domain.mapper.CommentDOMapper;
@@ -18,14 +17,12 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +110,7 @@ public class CommentHeatUpdateConsumer implements RocketMQListener<String> {
 //        过滤出一级评论
         //        分组
         Map<Long, List<CommentHeatBO>> mapByNoteId = commentHeatBOS.stream()
-                .filter(bo -> ObjUtil.equals(bo.getLevel(), CommentLevelEnum.ONE.getValue()))
+                .filter(bo -> ObjUtil.equals(bo.getLevel(), CommentLevelEnum.ONE.getCode()))
                 .collect(Collectors.groupingBy(CommentHeatBO::getNoteId));
 
         if (CollUtil.isEmpty(mapByNoteId)) {

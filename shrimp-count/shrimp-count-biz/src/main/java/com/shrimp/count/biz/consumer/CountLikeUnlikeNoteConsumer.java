@@ -12,7 +12,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.spring.annotation.MessageModel;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
@@ -29,11 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * @author ccb
+ */
 @Component
-@RocketMQMessageListener(consumerGroup = "shrimp_group_" + MQConstants.TOPIC_LIKE_OR_UNLIKE,
-        topic = MQConstants.TOPIC_LIKE_OR_UNLIKE,
-//        从下游变成上游，没有上游的数据库更新结果约束了，但是有数据对应服务
-        messageModel = MessageModel.BROADCASTING
+@RocketMQMessageListener(consumerGroup = "shrimp_group_" + MQConstants.TOPIC_COUNT_NOTE_LIKE,
+        topic = MQConstants.TOPIC_COUNT_NOTE_LIKE
 )
 @Slf4j
 public class CountLikeUnlikeNoteConsumer implements RocketMQListener<String> {

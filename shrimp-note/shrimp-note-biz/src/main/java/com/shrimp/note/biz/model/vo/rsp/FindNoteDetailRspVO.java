@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.shrimp.framework.common.annotation.BrowserId;
 
 /**
  * @author ccb
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class FindNoteDetailRspVO {
+    @BrowserId
     private Long id;
 
     private Integer type;
@@ -26,10 +28,12 @@ public class FindNoteDetailRspVO {
 
     private List<String> imgUris;
 
+    @BrowserId
     private Long topicId;
 
     private String topicName;
 
+    @BrowserId
     private Long creatorId;
 
     private String creatorName;
@@ -47,4 +51,10 @@ public class FindNoteDetailRspVO {
      * 是否可见
      */
     private Integer visible;
+    private Long likeTotal;
+    private Long collectTotal;
+    private Long commentTotal;
+    private boolean likeTotalAvailable;
+    private boolean collectTotalAvailable;
+    private boolean commentTotalAvailable;
 }

@@ -11,6 +11,18 @@
   <sql id="Base_Column_List">
     id, `name`, create_time, update_time, is_deleted
   </sql>
+  <select id="searchEnabled" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from t_topic
+    where is_deleted = 0 and `name` like concat('%', #{keyword}, '%')
+    order by id limit 20
+  </select>
+  <select id="findEnabledByName" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from t_topic
+    where is_deleted = 0 and binary `name` = binary #{name} limit 1
+  </select>
+  <insert id="insertTopic">
+    insert into t_topic (`name`, create_time, update_time, is_deleted) values (#{name}, now(), now(), 0)
+  </insert>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shrimp.count.biz.domain.mapper.NoteCountDOMapper">
+  <select id="selectByNoteIds" resultMap="BaseResultMap">
+    select * from t_note_count where note_id in
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+  </select>
   <resultMap id="BaseResultMap" type="com.shrimp.count.biz.domain.dataobject.NoteCountDO">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="note_id" jdbcType="BIGINT" property="noteId" />

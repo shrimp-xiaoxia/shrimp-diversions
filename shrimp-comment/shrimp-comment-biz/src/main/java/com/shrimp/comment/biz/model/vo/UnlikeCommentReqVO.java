@@ -1,0 +1,19 @@
+package com.shrimp.comment.biz.model.vo;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * @author ccb
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class UnlikeCommentReqVO {
+    @NotNull(message = "评论ID不能为空")
+    private Long commentId;
+}

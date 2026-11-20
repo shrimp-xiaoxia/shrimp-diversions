@@ -2,8 +2,10 @@ package com.shrimp.count.biz.domain.mapper;
 
 import com.shrimp.count.biz.domain.dataobject.UserCountDO;
 import org.apache.ibatis.annotations.Param;
+import java.util.List;
 
 public interface UserCountDOMapper {
+    List<UserCountDO> selectByUserIds(@Param("ids") List<Long> ids);
     int deleteByPrimaryKey(Long id);
 
     int insert(UserCountDO record);

@@ -9,4 +9,4 @@ spring:
         enabled: true
         group: DEFAULT_GROUP
         namespace: shrimp
-        server-addr: http://192.168.88.130:8848
+        server-addr: http://192.168.128.130:8848

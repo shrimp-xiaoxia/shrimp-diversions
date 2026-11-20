@@ -21,9 +21,15 @@ public enum ResponseCodeEnum implements BaseExceptionInterface {
     // ----------- 业务异常状态码 -----------
     RPC_KEY_VALUE_GET_COMMENT_CONTENT_FAIL("COMMENT-10010", "远程获取评论内容失败"),
     RPC_KEY_VALUE_GET_USER_FAIL("COMMENT-10011", "远程获取用户信息失败"),
+    COMMENT_LIKE_BUSY("COMMENT-20102", "操作处理中，请稍后重试"),
+    NOTE_NOT_COMMENTABLE("COMMENT-20101", "笔记不存在或不可访问"),
     COMMENT_NOT_FOUND("COMMENT-20001", "此评论不存在"),
+    PARENT_COMMENT_NOT_FOUND("COMMENT-20002", "此父评论不存在"),
+    COMMENT_ALREADY_LIKE("COMMENT-20003", "您已经点赞过该评论了"),
+    COMMENT_UNLIKE("COMMENT-2004", "您没有点赞过该评论"),
+    NOT_PERMIT_DELETE_COMMENT("COMMENT-20005", "您没有权限删除评论"),
+    DELETE_COMMENT_CONTENT_FAIL("COMMENT_20006","删除评论内容失败"),
     ;
-
     // 异常码
     private final String errorCode;
     // 错误信息

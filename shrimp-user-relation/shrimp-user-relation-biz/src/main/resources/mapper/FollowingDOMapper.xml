@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shrimp.user.relation.biz.domain.mapper.FollowingDOMapper">
+  <select id="countAvailable" resultType="long">
+    select count(*) from t_following f join t_user u on u.id = f.following_user_id
+    where f.user_id = #{userId} and u.is_deleted = 0 and u.status = 0
+  </select>
+  <select id="pageAvailable" resultType="java.lang.Long">
+    select f.following_user_id from t_following f join t_user u on u.id = f.following_user_id
+    where f.user_id = #{userId} and u.is_deleted = 0 and u.status = 0
+    order by f.create_time desc, f.id desc limit #{offset}, 10
+  </select>
+  <select id="selectFollowingIds" resultType="java.lang.Long">
+    select following_user_id from t_following where user_id = #{userId} and following_user_id in
+    <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+  </select>
   <resultMap id="BaseResultMap" type="com.shrimp.user.relation.biz.domain.dataobject.FollowingDO">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />

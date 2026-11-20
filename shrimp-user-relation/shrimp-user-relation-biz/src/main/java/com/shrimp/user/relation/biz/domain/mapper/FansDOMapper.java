@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface FansDOMapper {
+    long countAvailable(@Param("userId") Long userId);
+    List<Long> pageAvailable(@Param("userId") Long userId, @Param("offset") long offset);
     int deleteByPrimaryKey(Long id);
 
     int insert(FansDO record);

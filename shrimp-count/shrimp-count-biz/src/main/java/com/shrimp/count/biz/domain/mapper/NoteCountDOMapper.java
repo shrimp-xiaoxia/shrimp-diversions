@@ -2,8 +2,10 @@ package com.shrimp.count.biz.domain.mapper;
 
 import com.shrimp.count.biz.domain.dataobject.NoteCountDO;
 import org.apache.ibatis.annotations.Param;
+import java.util.List;
 
 public interface NoteCountDOMapper {
+    List<NoteCountDO> selectByNoteIds(@Param("ids") List<Long> ids);
     int deleteByPrimaryKey(Long id);
 
     int insert(NoteCountDO record);

@@ -7,10 +7,7 @@ import com.shrimp.kv.biz.domain.dataobject.CommentContentDO;
 import com.shrimp.kv.biz.domain.dataobject.CommentContentPrimaryKey;
 import com.shrimp.kv.biz.domain.repository.CommentContentRepository;
 import com.shrimp.kv.biz.service.CommentContentService;
-import com.shrimp.kv.dto.req.BatchAddCommentContentReqDTO;
-import com.shrimp.kv.dto.req.BatchFindCommentContentReqDTO;
-import com.shrimp.kv.dto.req.CommentContentReqDTO;
-import com.shrimp.kv.dto.req.FindCommentContentReqDTO;
+import com.shrimp.kv.dto.req.*;
 import com.shrimp.kv.dto.rsp.FindCommentContentRspDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -100,5 +97,15 @@ public class CommentContentServiceImpl implements CommentContentService {
                     .toList();
         }
         return Response.success(findCommentContentRspDTOS);
+    }
+
+    @Override
+    public Response<?> deleteCommentContent(DeleteCommentContentReqDTO deleteCommentContentReqDTO) {
+        Long noteId = deleteCommentContentReqDTO.getNoteId();
+        String yearMonth = deleteCommentContentReqDTO.getYearMonth();
+        String commentId = deleteCommentContentReqDTO.getCommentId();
+
+        commentContentRepository.deleteByPrimaryKeyNoteIdAndPrimaryKeyYearMonthAndPrimaryKeyContentId(noteId, yearMonth, UUID.fromString(commentId));
+        return Response.success();
     }
 }

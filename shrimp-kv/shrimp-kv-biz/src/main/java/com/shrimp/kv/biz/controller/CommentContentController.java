@@ -5,6 +5,7 @@ import com.shrimp.framework.common.response.Response;
 import com.shrimp.kv.biz.service.CommentContentService;
 import com.shrimp.kv.dto.req.BatchAddCommentContentReqDTO;
 import com.shrimp.kv.dto.req.BatchFindCommentContentReqDTO;
+import com.shrimp.kv.dto.req.DeleteCommentContentReqDTO;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,11 @@ public class CommentContentController {
         return commentContentService.batchFindCommentContent(batchFindCommentContentReqDTO);
     }
 
+    @PostMapping(value = "/comment/content/delete")
+    @ApiOperationLog(description = "删除评论内容")
+    public Response<?> deleteCommentContent(@Validated @RequestBody DeleteCommentContentReqDTO deleteCommentContentReqDTO) {
+        return commentContentService.deleteCommentContent(deleteCommentContentReqDTO);
+    }
 }
 
 

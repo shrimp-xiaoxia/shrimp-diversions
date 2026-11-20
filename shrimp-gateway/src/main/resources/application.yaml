@@ -4,6 +4,12 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: oss
+          uri: lb://shrimp-oss-biz
+          predicates:
+            - Path=/oss/**
+          filters:
+            - StripPrefix=1
         - id: auth
           uri: lb://shrimp-auth
           predicates:
@@ -29,7 +35,7 @@ spring:
           filters:
             - StripPrefix=1
         - id: search
-          uri: lb://shrimp-search
+          uri: lb://shrimp-search-biz
           predicates:
             - Path=/search/**
           filters:
@@ -43,7 +49,7 @@ spring:
   data:
     redis:
       database: 0 # Redis 数据库索引（默认为 0）
-      host: 192.168.88.130 # Redis 服务器地址
+      host: 192.168.128.130 # Redis 服务器地址
       port: 6379 # Redis 服务器连接端口
       password: 123321 # Redis 服务器连接密码（默认为空）
       timeout: 5s # 读超时时间

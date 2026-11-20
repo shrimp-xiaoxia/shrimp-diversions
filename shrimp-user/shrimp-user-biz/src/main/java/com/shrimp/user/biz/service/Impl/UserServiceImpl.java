@@ -104,6 +104,7 @@ public class UserServiceImpl implements UserService {
 
         LocalDate birthday = updateUserInfoReqVO.getBirthday();
         if (birthday != null) {
+            Preconditions.checkArgument(!birthday.isAfter(LocalDate.now()), "生日不能是未来日期");
             userDO.setBirthday(birthday);
             updateFlag = true;
         }
@@ -130,7 +131,7 @@ public class UserServiceImpl implements UserService {
         }
 
         String introduction = updateUserInfoReqVO.getIntroduction();
-        if (StringUtils.isNotBlank(introduction)) {
+        if (introduction != null) {
             Preconditions.checkArgument(ParamUtils.checkStrLength(introduction, 100), ResponseCodeEnum.INTRODUCE_VALID_FAIL.getErrorMessage());
             userDO.setIntroduction(introduction);
             updateFlag = true;
@@ -150,7 +151,11 @@ public class UserServiceImpl implements UserService {
 
         if (updateFlag) {
             userDO.setUpdateTime(LocalDateTime.now());
-            userDOMapper.updateByPrimaryKeySelective(userDO);
+            int updated = userDOMapper.updateByPrimaryKeySelective(userDO);
+            if (updated > 0) {
+                LOCAL_CACHE.invalidate(userDO.getId());
+                redisTemplate.delete(RedisKeyConstants.buildUserInfoCancelKey(userDO.getId()));
+            }
         }
 
         return Response.success();
@@ -178,7 +183,7 @@ public class UserServiceImpl implements UserService {
         UserDO userDO = UserDO.builder()
                 .id(Long.valueOf(id))
                 .xiaohashuId(xiaohashuId)
-                .nickname("小红薯" + xiaohashuId)
+                .nickname("虾趣用户" + xiaohashuId)
                 .phone(phone)
                 .status(StausEnum.ENABLE.getValue())
                 .isDeleted(DeletedEnum.NO.getValue())
@@ -303,7 +308,7 @@ public class UserServiceImpl implements UserService {
 //        提取IDS
         List<Long> ids = findUserByIdsReqDTO.getIds();
 //        将ID集合转换成redisKey
-        List<String> redisKeys = ids.stream().map(String::valueOf).toList();
+        List<String> redisKeys = ids.stream().map(RedisKeyConstants::buildUserInfoCancelKey).toList();
 //        发起redis批量查询
         List<Object> redisUserInfos = redisTemplate.opsForValue().multiGet(redisKeys);
 //        过滤掉为null的结果
@@ -314,9 +319,9 @@ public class UserServiceImpl implements UserService {
         List<FindUserByIdRspDTO> findUserByIdRspDTOS = Lists.newArrayList();
 //        将Redis结果装换
         if (CollUtil.isNotEmpty(redisUserInfos)) {
-            findUserByIdRspDTOS = redisUserInfos.stream().map(info ->
+            findUserByIdRspDTOS = new ArrayList<>(redisUserInfos.stream().map(info ->
                     JsonUtils.parseJSONString(String.valueOf(info), FindUserByIdRspDTO.class)
-            ).toList();
+            ).toList());
         }
 //        如果要查询的数据都在Redis缓存中，直接返回数据
         if (findUserByIdRspDTOS.size() == ids.size()) {

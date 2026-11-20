@@ -30,9 +30,7 @@ public class AuthController {
     @PostMapping("/logout")
     @ApiOperationLog(description = "账号登出")
     public Response<?> logout(){
-//        TODO 账号登出逻辑
-        authService.logout();
-        return Response.success();
+        return authService.logout();
     }
 
     @PostMapping("/password/update")

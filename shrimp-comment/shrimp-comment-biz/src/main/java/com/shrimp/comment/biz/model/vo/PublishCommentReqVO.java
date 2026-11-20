@@ -1,6 +1,7 @@
 package com.shrimp.comment.biz.model.vo;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class PublishCommentReqVO {
     /**
      * 评论图片链接
      */
+    @Size(max = 108, message = "评论图片地址不能超过 108 个字符")
     private String imageUrl;
 
     /**

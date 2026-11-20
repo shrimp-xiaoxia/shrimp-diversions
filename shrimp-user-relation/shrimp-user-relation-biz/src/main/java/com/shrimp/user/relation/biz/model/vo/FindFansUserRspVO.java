@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.shrimp.framework.common.annotation.BrowserId;
 
 /**
  * @author ccb
@@ -14,7 +15,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FindFansUserRspVO {
 
+    @BrowserId
     private Long userId;
+    private Boolean isLiked;
+    private boolean followStateAvailable;
+    private boolean fansTotalAvailable;
+    private boolean noteTotalAvailable;
 
     private String avatar;
 

@@ -1,11 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shrimp.note.biz.domain.mapper.NoteDOMapper">
+  <sql id="discoverWhere">
+    n.status = 1 and n.visible = 0
+    <if test="channelId != null and channelId != 0">and n.channel_id = #{channelId}</if>
+  </sql>
+  <select id="countDiscover" resultType="long">select count(*) from t_note n where <include refid="discoverWhere"/></select>
+  <select id="findDiscover" resultMap="BaseResultMap">
+    select n.* from t_note n where <include refid="discoverWhere"/>
+    order by n.create_time desc, n.id desc limit #{offset}, 10
+  </select>
+  <sql id="profileWhere">
+    n.status = 1
+    <choose>
+      <when test="type == 1">and n.creator_id = #{userId}<if test="!owner"> and n.visible = 0</if></when>
+      <when test="type == 2">and n.visible = 0 and exists (select 1 from t_note_collection r where r.note_id = n.id and r.user_id = #{userId} and r.status = 1)</when>
+      <otherwise>and n.visible = 0 and exists (select 1 from t_note_like r where r.note_id = n.id and r.user_id = #{userId} and r.status = 1)</otherwise>
+    </choose>
+  </sql>
+  <select id="countProfile" resultType="long">select count(*) from t_note n where <include refid="profileWhere"/></select>
+  <select id="findProfile" resultMap="BaseResultMap">
+    select n.* from t_note n where <include refid="profileWhere"/>
+    order by n.create_time desc, n.id desc limit #{offset}, 10
+  </select>
   <resultMap id="BaseResultMap" type="com.shrimp.note.biz.domain.dataobject.NoteDO">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="is_content_empty" jdbcType="BIT" property="isContentEmpty" />
     <result column="creator_id" jdbcType="BIGINT" property="creatorId" />
+    <result column="channel_id" jdbcType="BIGINT" property="channelId" />
     <result column="topic_id" jdbcType="BIGINT" property="topicId" />
     <result column="topic_name" jdbcType="VARCHAR" property="topicName" />
     <result column="is_top" jdbcType="BIT" property="isTop" />
@@ -19,7 +42,7 @@
     <result column="content_uuid" jdbcType="VARCHAR" property="contentUuid" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, title, is_content_empty, creator_id, topic_id, topic_name, is_top, `type`, img_uris, 
+    id, title, is_content_empty, creator_id, channel_id, topic_id, topic_name, is_top, `type`, img_uris,
     video_uri, visible, create_time, update_time, `status`, content_uuid
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -34,12 +57,12 @@
   </delete>
   <insert id="insert" parameterType="com.shrimp.note.biz.domain.dataobject.NoteDO">
     insert into t_note (id, title, is_content_empty, 
-      creator_id, topic_id, topic_name, 
+      creator_id, channel_id, topic_id, topic_name,
       is_top, `type`, img_uris, video_uri, 
       visible, create_time, update_time, 
       `status`, content_uuid)
     values (#{id,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{isContentEmpty,jdbcType=BIT}, 
-      #{creatorId,jdbcType=BIGINT}, #{topicId,jdbcType=BIGINT}, #{topicName,jdbcType=VARCHAR}, 
+      #{creatorId,jdbcType=BIGINT}, #{channelId,jdbcType=BIGINT}, #{topicId,jdbcType=BIGINT}, #{topicName,jdbcType=VARCHAR},
       #{isTop,jdbcType=BIT}, #{type,jdbcType=TINYINT}, #{imgUris,jdbcType=VARCHAR}, #{videoUri,jdbcType=VARCHAR}, 
       #{visible,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{status,jdbcType=TINYINT}, #{contentUuid,jdbcType=VARCHAR})
@@ -58,6 +81,9 @@
       </if>
       <if test="creatorId != null">
         creator_id,
+      </if>
+      <if test="channelId != null">
+        channel_id,
       </if>
       <if test="topicId != null">
         topic_id,
@@ -105,6 +131,9 @@
       </if>
       <if test="creatorId != null">
         #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="channelId != null">
+        #{channelId,jdbcType=BIGINT},
       </if>
       <if test="topicId != null">
         #{topicId,jdbcType=BIGINT},
